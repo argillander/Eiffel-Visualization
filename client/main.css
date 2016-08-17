@@ -1,0 +1,79 @@
+/* CSS declarations go here */
+
+svg {
+  overflow: hidden;
+  display: block;
+  padding: 5px;
+}
+
+#container {
+    min-width: 300px;
+    max-width: 800px;
+    height: 400px;
+    margin: 1em auto;
+}
+
+#search-field{
+  margin: 20px;
+  margin-left: 0px;
+}
+
+.red{
+  color: red;
+}
+
+.node rect, .node ellipse, .node diamond, .node circle{
+  stroke: #333;
+  stroke-width: 2px;
+  fill: #fff;
+}
+
+text {
+	font-weight: 300;
+	font-family: "Helvetica Neue", Helvetica, Arial, sans-serf;
+	font-size: 14px;
+}
+
+.edgeLabel rect {
+  fill: #fff;
+}
+.edgePath {
+  stroke: #333;
+  stroke-width: 2.5px;
+  fill: none;
+}
+
+#graph-text{
+	font-family: monospace;
+}
+
+p {
+    margin-left: 182px;
+}
+
+
+    .vis-timeline {
+      border: 1px solid grey;
+      font-family:  purisa, 'comic sans', cursive;
+      font-size: 11pt;
+      background: #F8F8FF;
+    }
+
+    .vis-item {
+      border-color: #F991A3;
+      background-color: skyBlue;
+      font-size: 15pt;
+      color: purple;
+      box-shadow: 5px 5px 20px rgba(128,128,128, 0.5);
+    }
+
+    .vis-time-axis .vis-text {
+      color: black;
+      padding-top: 0px;
+      padding-left: 10px;
+    }
+
+    .vis-time-axis .vis-grid.vis-major {
+      border-width: 2px;
+      border-color: #F991A3;
+    }
