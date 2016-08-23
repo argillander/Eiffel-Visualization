@@ -6,90 +6,120 @@
 var dot = require('graphlib-dot'); // Library for reading a digraph
 var dagD3Draw = require('dagre-d3'); // Library for drawing graph on canvas
 
-$(document).ready(function() {
-		
-	// Generte Eiffel format graphs according to the given input number 
-	var arrayGraphs = genGraphs(150);
-		
-	// At start selected graphs would be equal to total number of graphs, I think 
-	selectedGraphs = arrayGraphs;
-	
-	// Current start and end date of the timeline 
-	var timeLineStart = null;
-	var timeLineEnd = null;
-	
-		////////////////////////////////
-		// HeatMap
-		////////////////////////////////
-		
-	// Returns the failed testcases according to their requirements 
-	var jsonHeatMapInput = aggregatedRequirementsTestcases(arrayGraphs);
-		
-	// Related requirements: jsonHeatMapInput.xValue
-	// Related testcases: jsonHeatMapInput.yValue 
-	// Percentage of failures: jsonHeatMapInput.zValue
-		
-	// Set properties according to the aggregated results
-	var options = setHeatMapProperties(jsonHeatMapInput.xValue, jsonHeatMapInput.yValue, jsonHeatMapInput.zValue, arrayGraphs);
-		
-	// Draw the heatmap
-	var chart = new Highcharts.Chart(options);
-			
-	// On enter key press, search any text in the data to filter out relevent graphs and show them to the user
-	$('#searchTextBox').keyup(function (e) {
-		if (e.keyCode == 13) { // for checking enter key press
+//mongoDB collection name (same as in server)
+Graphs = new Mongo.Collection('mygraphs');
 
-			if (selectedGraphs.length==0){ // Incase selected graph is empty, fetch records according to the selected date range in the timeline
-				// Get records within the selected date range
-				selectedGraphs = graphDateRange(timeLineStart, timeLineEnd, arrayGraphs);				
-			}
+var dbData = ""; // variable to store DB data
+var len = 0; // number of DB records 
+var arrayGraphs = []; // array to store parsed Eiffel graphs
+
+// subscribe to the change in the mongoDB
+const handle = Meteor.subscribe('graphs');
+
+// Keep track every time the data changes in the database
+Tracker.autorun(() => {
+	
+	const isReady = handle.ready(); // check if the data is ready 
+	if(isReady){// When the data is ready to be fetched (bool=true)
+			arrayGraphs = [];
+			dbData = Graphs.find({},{sort: {'time':1}}); // query 
+			len = dbData.fetch().length; // number of records 
 			
-			// Get records within the selected date range			
-			selectedGraphs = searchText($('#searchTextBox').val(), selectedGraphs); // selects relevent graphs 
-			$('p').text("Hits: "+ selectedGraphs.length); // show relevent graphs number to user 
-			drawGraphs(selectedGraphs); // Draw graphs
+			for(i=0; i<len; i++){
+				// Fetch Eiffel graphs, convert to dot format and put it in array to process further 
+				arrayGraphs.push(dot.read(dbData.fetch()[i].dot));
+			}	
+		    mainFunc(); 
 		}
-	});
-		
-		////////////////////////////////
-		// Time Line 
-		////////////////////////////////
+});
 
-	// Get timeLine properties Date range etc to draw the timeline accordingly
-	var json = setTimeLineProperties();
+function mainFunc(){
+	
+	$(document).ready(function() {
 
-	// Create a Timeline accroding to the properties
-	var timeline = new vis.Timeline(json.container, json.items, json.options);
+		// At start selected graphs would be equal to total number of graphs, I think 
+		selectedGraphs = arrayGraphs;
 		
-	// If the range is changed by the user, modify the heatMap accordingly 
-	timeline.on("rangechanged", function (properties) {
+		// Current start and end date of the timeline 
+		var timeLineStart = null;
+		var timeLineEnd = null;
+		
+			////////////////////////////////
+			// HeatMap
+			////////////////////////////////
 			
-		// Empty the HeatMap chart to draw new chart according to the selected graphs within that date range 
-		$('#container').empty();		
-
-		// To make the div empty for stop showing previous graphs to user
-		makeEmpty();
-		
-		// Current start and end date selected in the timeline
-		timeLineStart = properties.start.getTime();
-		timeLineEnd = properties.end.getTime();
-		
-		// Get records within the selected date range
-		selectedGraphs = graphDateRange(timeLineStart, timeLineEnd, arrayGraphs);
-		
-		jsonHeatMapInput = aggregatedRequirementsTestcases(selectedGraphs);
-
+		// Returns the failed testcases according to their requirements 
+		var jsonHeatMapInput = aggregatedRequirementsTestcases(arrayGraphs);
+			
 		// Related requirements: jsonHeatMapInput.xValue
 		// Related testcases: jsonHeatMapInput.yValue 
 		// Percentage of failures: jsonHeatMapInput.zValue
-
-		// Set properties according to the aggregated results
-		options = setHeatMapProperties(jsonHeatMapInput.xValue, jsonHeatMapInput.yValue, jsonHeatMapInput.zValue, selectedGraphs);
 			
-		// Draw new heatmap according to the records with selected date range
-		chart = new Highcharts.Chart(options); // Draw the heatmap		
-	});			
-});
+		// Set properties according to the aggregated results
+		var options = setHeatMapProperties(jsonHeatMapInput.xValue, jsonHeatMapInput.yValue, jsonHeatMapInput.zValue, arrayGraphs);
+			
+		// Draw the heatmap
+		var chart = new Highcharts.Chart(options);
+				
+		// On enter key press, search any text in the data to filter out relevent graphs and show them to the user
+		$('#searchTextBox').keyup(function (e) {
+			if (e.keyCode == 13) { // for checking enter key press
+
+				if (selectedGraphs.length==0){ // Incase selected graph is empty, fetch records according to the selected date range in the timeline
+					// Get records within the selected date range
+					selectedGraphs = graphDateRange(timeLineStart, timeLineEnd, arrayGraphs);				
+				}
+				
+				// Get records within the selected date range			
+				selectedGraphs = searchText($('#searchTextBox').val(), selectedGraphs); // selects relevent graphs 
+				$('p').text("Hits: "+ selectedGraphs.length); // show relevent graphs number to user 
+				drawGraphs(selectedGraphs); // Draw graphs
+			}
+		});
+			
+			////////////////////////////////
+			// Time Line 
+			////////////////////////////////
+		$('#timeline').empty();
+		// Get timeLine properties Date range etc to draw the timeline accordingly
+		var json = setTimeLineProperties();
+
+		// Create a Timeline accroding to the properties
+		var timeline = new vis.Timeline(json.container, json.items, json.options);
+			
+		// If the range is changed by the user, modify the heatMap accordingly 
+		timeline.on("rangechanged", function (properties) {
+				
+			// Empty the HeatMap chart to draw new chart according to the selected graphs within that date range 
+			$('#container').empty();		
+
+			// To make the div empty for stop showing previous graphs to user
+			makeEmpty();
+			
+			// Current start and end date selected in the timeline
+			timeLineStart = properties.start.getTime();
+			timeLineEnd = properties.end.getTime();
+			
+			// Get records within the selected date range
+			selectedGraphs = graphDateRange(timeLineStart, timeLineEnd, arrayGraphs);
+			
+			jsonHeatMapInput = aggregatedRequirementsTestcases(selectedGraphs);
+
+			// Related requirements: jsonHeatMapInput.xValue
+			// Related testcases: jsonHeatMapInput.yValue 
+			// Percentage of failures: jsonHeatMapInput.zValue
+
+			// Set properties according to the aggregated results
+			options = setHeatMapProperties(jsonHeatMapInput.xValue, jsonHeatMapInput.yValue, jsonHeatMapInput.zValue, selectedGraphs);
+				
+			// Draw new heatmap according to the records with selected date range
+			chart = new Highcharts.Chart(options); // Draw the heatmap		
+		});			
+	});		
+	
+	
+}
+
 
 // Empty data in the container and stuff, call just this one fucntion when needed to empty things for new data or new input 
 function makeEmpty(){
@@ -107,21 +137,20 @@ function setTimeLineProperties(){
 	
 	// DOM element where the Timeline will be attached
 	var container = document.getElementById('timeline');
-
+	
+	var sDate = (new Date(parseInt(arrayGraphs[0].node(arrayGraphs[0].nodes()[2]).time))).toISOString();
+	var eDate = (new Date(parseInt(arrayGraphs[arrayGraphs.length-1].node(arrayGraphs[arrayGraphs.length-1].nodes()[2]).time))).toISOString();
 	// Create a DataSet (allows two way data-binding)
 	var items = new vis.DataSet([
-		{start: '2016-06-20',
-		end: '2016-08-20'}
+		{start: sDate,
+		end: eDate}
 		
-		/*
-		// for daily view
-		{start:''},
-		{end:''}
-		*/
 	]);
 	
 	// Data to pass on to Timeline function to draw timeline
-	var options = {};
+	var options = {
+		selectable: false
+	};
 	var json = {};   
 	json.container = container; 
 	json.items = items;       
@@ -850,9 +879,9 @@ function drawGraphs (myGraph){
 
 	// Optional - resize the SVG element based on the contents
 	var svg = document.querySelector('#graph-container');
-	var bbox = svg.getBBox();
-	svg.style.width = bbox.width + 400.0 + "px";
-	svg.style.height = bbox.height + 400.0 + "px";	
+	//var bbox = svg.getBBox();
+	svg.style.width =  100 + "%";
+	svg.style.height = 750 + "px";	
 	
 }
 
@@ -1053,120 +1082,4 @@ function sortAlphaNum(a,b) {
     } else {
         return aA > bA ? 1 : -1;
     }
-}
-
-		////////////////////////////////
-		// Data generation part
-		////////////////////////////////
-		
-// Generates number of Eiffel graphs on given input number 
-function genGraphs(number){
-	var g="";
-	var arrayGraphs = [];
-	for (var i=0; i<number; i++){
-		
-		// Creates a single Eiffel format graph
-		g = makeGraph();
-		
-		// Reads the digraph of string format
-		g = dot.read(g);
-		
-		//monoDBConnection(g);
-		
-		// Makes an array of Eiffel graphs to be inserted into DB
-		arrayGraphs.push(g);
-	}	
-	return arrayGraphs;
-}
-
-// Makes a single Eiffel graph of string fomrat 
-function makeGraph(){
-	
-	// Select from options
-	var arrayStatus = ['pass', 'fail'];
-	var arrayContributers = ['Mohtashim', 'Ola', 'Kristian', 'Alfons', 'David'];
-	
-	// Data attributes with version numbers
-	var rand_component = "Component_"+ genRandomNumber(5,1);	
-	var rand_requirement = "Requirement_"+ genRandomNumber(20,1);
-	var rand_codeChange = "Code_Change_"+ genRandomNumber(100,1);
-	var rand_patchVerification = "Patch_Verfication_"+ genRandomNumber(100,1);
-	var rand_codeReview = "Code_Review_"+ genRandomNumber(100,1);	
-	var rand_build = "Build_"+ genRandomNumber(100,1);
-	var rand_testCase_A = "Testcase_"+ genRandomNumber(5,1);
-	var rand_testCase_B = "Testcase_"+ genRandomNumber(10,6);
-	var rand_artifact = "Artifact_"+ genRandomNumber(100,1);	
-	var rand_testCase_C = "Testcase_"+ genRandomNumber(15,11);
-	var rand_testCase_D = "Testcase_"+ genRandomNumber(20,16);	
-	var startDate = new Date('Wed Jun 01 2016 08:10:01'); //1464761401000
-	var endDate = new Date('Wed Aug 31 2016 21:13:01');//1472670781000
-    //var rand_date = genRandomDateTime(startDate, endDate);
-	var confidence_level = "Confidence_Level";
-	
-	// Dependencies bewteen requirements
-	var dependent_Req = "Requirement_"+genRandomNumber(20,1) +"dot"+ "Requirement_" +genRandomNumber(20,1);
-
-	// Activities' names and their properties
-	var ComponentData = ""+rand_component+" ["+ "time="+genRandomDateTime(startDate, endDate)+",type=component]\n";
-	var requirementData = ""+rand_requirement+" ["+ "time="+genRandomDateTime(startDate, endDate)+",type=requirement,contributor="+pickRandomValue(arrayContributers)+",dependencies="+dependent_Req+"]\n";
-	var codeChangeData = ""+rand_codeChange+" ["+ "time="+genRandomDateTime(startDate, endDate)+",type=code_change,contributor="+pickRandomValue(arrayContributers)+"]\n";
-	var codeReviewData = ""+rand_codeReview+" ["+ "time="+genRandomDateTime(startDate, endDate)+",type=code_review,contributor="+pickRandomValue(arrayContributers)+", status=pass]\n";
-	var patchVerificationData = ""+rand_patchVerification+" ["+ "time="+genRandomDateTime(startDate, endDate)+",type=patch_verification, status="+pickRandomValue(arrayStatus)+"]\n";
-	var buildData = ""+rand_build+" ["+ "time="+genRandomDateTime(startDate, endDate)+",type=build, status=pass]\n";
-	var artifactData = ""+rand_artifact+" ["+ "time="+genRandomDateTime(startDate, endDate)+",type=artifact]\n";	
-	var testCaseAData = ""+rand_testCase_A+" ["+ "time="+genRandomDateTime(startDate, endDate)+",type=test_A, status="+pickRandomValue(arrayStatus)+"]\n";
-	var testCaseBData = ""+rand_testCase_B+" ["+ "time="+genRandomDateTime(startDate, endDate)+",type=test_B, status="+pickRandomValue(arrayStatus)+"]\n";
-	var confidenceLevelData = ""+confidence_level+" [type=confidence_level, value=0.4]\n";
-	var testCaseCData = ""+rand_testCase_C+" ["+ "time="+genRandomDateTime(startDate, endDate)+",type=test_C, status="+pickRandomValue(arrayStatus)+"]\n";
-	var testCaseDData = ""+rand_testCase_D+" ["+ "time="+genRandomDateTime(startDate, endDate)+",type=test_D, status="+pickRandomValue(arrayStatus)+"]\n";
-	
-	var edgeLabel = "[label=cause]";
-	
-	// Prepare the graph according to the format 
-	var g = 'digraph {\n' +
-	            '    '+ComponentData+
-				'    '+requirementData+
-				'    '+codeChangeData+
-				'    '+codeReviewData+
-				'    '+patchVerificationData+
-				'    '+buildData+
-				'    '+testCaseAData+
-				'    '+testCaseBData+
-				'    '+artifactData+				
-				'    '+confidenceLevelData+
-				'    '+testCaseCData+
-				'    '+testCaseDData+
-				'    '+rand_requirement+' -> '+rand_component+ ' '+edgeLabel+';\n' +
-				'	 '+rand_codeChange+' -> '+rand_requirement+ ' '+edgeLabel+';\n' +
-				'	 '+rand_patchVerification+' -> '+rand_codeChange+ ' '+edgeLabel+';\n' +	
-				'	 '+rand_codeReview+' -> '+rand_codeChange+ ' '+edgeLabel+';\n' +
-				'	 '+rand_build+' -> '+rand_codeReview+ ' '+edgeLabel+';\n' +
-				'	 '+rand_build+' -> '+rand_patchVerification+ ' '+edgeLabel+';\n' +	
-				'	 '+rand_testCase_A+' -> '+rand_build+ ' '+edgeLabel+';\n' +	
-				'	 '+rand_testCase_B+' -> '+rand_build+ ' '+edgeLabel+';\n' +
-				'	 '+rand_artifact+' -> '+rand_build+ ' '+edgeLabel+';\n' +				
-				'	 '+confidence_level+' -> '+rand_testCase_A+ ' '+edgeLabel+';\n' +	
-				'	 '+confidence_level+' -> '+rand_testCase_B+ ' '+edgeLabel+';\n' +
-				'	 '+confidence_level+' -> '+rand_artifact+ ' [label=subject]'+';\n' +				
-				'	 '+rand_testCase_C+' -> '+confidence_level+ ' '+edgeLabel+';\n' +
-				'	 '+rand_testCase_D+' -> '+confidence_level+ ' '+edgeLabel+';\n' +		
-				'    }'
-	// Return Eiffel String format single graph
-	return g;
-}
-
-// Picks random value from the given array
-function pickRandomValue (myArray) {
-	var randValue = myArray[Math.floor(Math.random() * myArray.length)];
-	return randValue;
-}
-// Generates random number within the given range
-function genRandomNumber (uR,lR){
-	var randNum = Math.floor((Math.random() * uR) + lR);
-	return randNum;
-}
-// Random datetime within given range
-function genRandomDateTime (start, end){
-	var date = new Date(+start + Math.random() * (end - start));
-	return date.getTime();
 }
