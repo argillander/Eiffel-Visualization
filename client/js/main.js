@@ -149,7 +149,8 @@ function setTimeLineProperties(){
 	
 	// Data to pass on to Timeline function to draw timeline
 	var options = {
-		selectable: false
+		selectable: false,
+		itemsAlwaysDraggable: false
 	};
 	var json = {};   
 	json.container = container; 

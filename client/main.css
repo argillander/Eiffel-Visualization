@@ -77,3 +77,8 @@ p {
       border-width: 2px;
       border-color: #F991A3;
     }
+
+html, body {
+    max-width: 100%;
+    overflow-x: hidden;
+}	
