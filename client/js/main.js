@@ -142,16 +142,31 @@ function setTimeLineProperties(){
 	var eDate = (new Date(parseInt(arrayGraphs[arrayGraphs.length-1].node(arrayGraphs[arrayGraphs.length-1].nodes()[2]).time))).toISOString();
 	// Create a DataSet (allows two way data-binding)
 	var items = new vis.DataSet([
-		{start: sDate,
-		end: eDate}
+		{start: new Date()}
 		
 	]);
 	
 	// Data to pass on to Timeline function to draw timeline
 	var options = {
 		selectable: false,
-		itemsAlwaysDraggable: false
+		itemsAlwaysDraggable: false,
+		showCurrentTime: false
+		//zoomable: true,
+		//moveable: true,
+		//zoomKey: 'z'
+	
 	};
+	
+    interaction: {
+
+        //multiselect: false,
+        //navigationButtons: true,
+        //selectable: true,
+        //selectConnectedEdges: true,
+        //tooltipDelay: 100,
+        //zoomView: false
+    };
+	
 	var json = {};   
 	json.container = container; 
 	json.items = items;       
