@@ -30,13 +30,25 @@ Tracker.autorun(() => {
 				arrayGraphs.push(dot.read(dbData.fetch()[i].dot));
 			}	
 		    mainFunc(); 
-		}
+	}
 });
 
 function mainFunc(){
 	
 	$(document).ready(function() {
-
+		
+		// Hide/show the heatmap view
+		$('#btnHide').click(function(){
+			// If already hidden then show, if already shown, hide
+			if($('#container').is(":visible")){
+				$('#container').hide();
+				$("#btnHide").html('Show Heatmap');				
+			}
+			else{
+				$('#container').show();
+				$("#btnHide").html('Hide Heatmap');
+			}
+		});
 		// At start selected graphs would be equal to total number of graphs, I think 
 		selectedGraphs = arrayGraphs;
 		
@@ -50,7 +62,7 @@ function mainFunc(){
 			
 		// Returns the failed testcases according to their requirements 
 		var jsonHeatMapInput = aggregatedRequirementsTestcases(arrayGraphs);
-			
+		var jsonSepAggView = calAggregatedGraphsData(arrayGraphs)
 		// Related requirements: jsonHeatMapInput.xValue
 		// Related testcases: jsonHeatMapInput.yValue 
 		// Percentage of failures: jsonHeatMapInput.zValue
@@ -60,7 +72,8 @@ function mainFunc(){
 			
 		// Draw the heatmap
 		var chart = new Highcharts.Chart(options);
-				
+		// Draw aggregated view for the application
+		drawAggregatedViewGraphOnClickHM(jsonSepAggView, 1);	
 		// On enter key press, search any text in the data to filter out relevent graphs and show them to the user
 		$('#searchTextBox').keyup(function (e) {
 			if (e.keyCode == 13) { // for checking enter key press
@@ -86,6 +99,10 @@ function mainFunc(){
 
 		// Create a Timeline accroding to the properties
 		var timeline = new vis.Timeline(json.container, json.items, json.options);
+
+		// Current start and end date selected in the timeline
+		// timeLineStart = properties.start.getTime();
+		// timeLineEnd = properties.end.getTime();
 			
 		// If the range is changed by the user, modify the heatMap accordingly 
 		timeline.on("rangechanged", function (properties) {
@@ -104,6 +121,7 @@ function mainFunc(){
 			selectedGraphs = graphDateRange(timeLineStart, timeLineEnd, arrayGraphs);
 			
 			jsonHeatMapInput = aggregatedRequirementsTestcases(selectedGraphs);
+			jsonSepAggView = calAggregatedGraphsData(selectedGraphs);
 
 			// Related requirements: jsonHeatMapInput.xValue
 			// Related testcases: jsonHeatMapInput.yValue 
@@ -113,8 +131,17 @@ function mainFunc(){
 			options = setHeatMapProperties(jsonHeatMapInput.xValue, jsonHeatMapInput.yValue, jsonHeatMapInput.zValue, selectedGraphs);
 				
 			// Draw new heatmap according to the records with selected date range
-			chart = new Highcharts.Chart(options); // Draw the heatmap		
-		});			
+			chart = new Highcharts.Chart(options); // Draw the heatmap
+			
+			// Draw aggregated view independent of HM (Separate aggregated view)
+			$('#aggGraph-containerHM').height('710px');
+			drawAggregatedViewGraphOnClickHM(jsonSepAggView, 1);
+			
+			// Date range selected in the timeline
+			$("label[for = lblDate1]").text("Date Range: "+formatDate( new Date(timeLineStart)) +"  -  "+ formatDate(new Date(timeLineEnd)));
+		});	
+		
+		//$("label[for = lblDate1]").text(formatDate( new Date(timeLineStart)) +"  -  "+ formatDate(new Date(timeLineEnd)));
 	});		
 	
 	
@@ -480,6 +507,132 @@ function getAggregatedNumbersOnClickHM (xValue, yValue, arrayReqs, arrayTestcase
 	return json;
 }
 
+// Separate aggreagted view data 
+function calAggregatedGraphsData (selectedGraphs) {
+	
+	var node = '';
+	var tComponents = 0; 
+	var tRequirements = 0;
+	var tCodeChanges = 0;
+
+	var tPatchVerif = 0;
+	var fPatchVerif = 0;
+
+	var tCodeReviews = 0;
+	var fCodeReviews = 0;
+
+	var tBuilds = 0;
+	var fBuilds = 0;
+	
+	var tATestcases = 0;
+	var fATestcases = 0;
+
+	var tBTestcases = 0;
+	var fBTestcases = 0;
+	
+	var tCTestcases = 0;
+	var fCTestcases = 0;
+
+	var tDTestcases = 0;
+	var fDTestcases = 0;
+	
+	var tArtifacts = 0;
+	var overAllConfidence = 0;	
+	var sizeSelectedGraphs = selectedGraphs.length
+	
+	for (var i=0; i< sizeSelectedGraphs; i++){
+		
+		selectedGraphs[i].nodes().forEach(function (id){
+			node = selectedGraphs[i].node(id);
+
+			if (node.type === 'component'){
+			}
+			else if (node.type === 'requirement'){
+			}
+			else if (node.type === 'code_change'){
+				tCodeChanges++;
+			}
+			else if (node.type === 'code_review'){
+				
+				if(node.status == 'fail'){
+					fCodeReviews++;
+				}
+				tCodeReviews++;
+			}			
+			else if (node.type === 'patch_verification'){
+				
+				if(node.status == 'fail'){
+					fPatchVerif++;
+				}
+				tPatchVerif++;
+			}
+			else if (node.type === 'build'){
+			
+				if(node.status == 'fail'){
+					fBuilds++;
+				}
+				tBuilds++;
+			}
+			else if (node.type === 'test_A'){
+				
+				if(node.status == 'fail'){
+					fATestcases++;
+				}
+				tATestcases++;
+			}
+			else if (node.type === 'test_B'){
+
+				if(node.status == 'fail'){
+					fBTestcases++;
+				}
+				tBTestcases++;
+			}			
+			else if (node.type === 'artifact'){
+				tArtifacts++;
+			}
+			else if (node.type === 'confidence_level'){
+	
+			}
+			else if (node.type === 'test_C'){
+				
+				if(node.status == 'fail'){
+					fCTestcases++;
+				}
+				tCTestcases++;
+			}
+			else if (node.type === 'test_D'){
+				if(node.status == 'fail'){
+					fDTestcases++;
+				}
+				tDTestcases++;
+			}			
+		});
+	}
+	
+	var json = {};
+	
+	json.codeChanges = '   Code changes ('+ tCodeChanges +'/'+ tCodeChanges +')     ';
+	json.patchVerif = 'Patch verfications\nfailed: '+ fPatchVerif +'/'+ tPatchVerif +'       ';
+	json.patchVerifStyle = colorPassFail(fPatchVerif/tPatchVerif);		
+	json.codeReviews = 'Code reviews     \nfailed: '+ fCodeReviews +'/'+ tCodeReviews +'          ';	
+	json.codeReviewsStyle = colorPassFail(fCodeReviews/tCodeReviews);	
+	json.builds = 'Builds\nfailed:'+ fBuilds +'/'+ tBuilds +'          ';
+	json.buildsStyle = colorPassFail(fBuilds/tBuilds);	
+	json.test_A = 'Testcases_A\nfailed: '+ fATestcases +'/'+ tATestcases +'          ';
+	json.test_AStyle = colorPassFail(fATestcases/tATestcases);	
+	json.test_B = 'Testcases_B\nfailed: '+ fBTestcases +'/'+ tBTestcases +'          ';
+	json.test_BStyle = colorPassFail(fBTestcases/tBTestcases);	
+	json.artifacts = '  Artifacts: ('+ tArtifacts +'/'+ tArtifacts +')         ';
+	json.confidence = 'Confidence level\nvalue: '+( ( (fATestcases/tATestcases) + (fBTestcases/tBTestcases) )/2 ).toFixed(2) +'                         ';
+	json.confidenceStyle = colorPassFail(( (fATestcases/tATestcases) + (fBTestcases/tBTestcases) )/2);	
+	json.test_C = 'Testcases_C\nfailed: '+ fCTestcases +'/'+ tCTestcases +'           ';
+	json.test_CStyle = colorPassFail(fCTestcases/tCTestcases);		
+	json.test_D = 'Testcases_D\nfailed: '+ fDTestcases +'/'+ tDTestcases +'           ';
+	json.test_DStyle = colorPassFail(fDTestcases/tDTestcases);
+	
+	return json;
+}
+
 // Assigns color according to the pass fail ratio 
 function colorPassFail (avgValue){
 	
@@ -493,29 +646,64 @@ function colorPassFail (avgValue){
 	};	
 }
 // Displays/Draws aggregated graph when user clicks on the heatMap to select particular record   
-function drawAggregatedViewGraphOnClickHM (json){
+function drawAggregatedViewGraphOnClickHM (json, SepAgg){
 	
-	// Basic aggregated graph structure
-	var mainAggregatedGraph = 'digraph {\n' +
-		'    requirement \n' +	
-		'    code_change \n' +
-		'    code_review \n' +
-		'    patch_verification \n' +
-		'    build \n' +
-		'    test_A \n' +
-		'    artifact \n' +
-		'    confidence_level \n' +
-		'    code_change -> requirement [label=cause];\n' +		
-		'    patch_verification -> code_change [label=cause];\n' +
-		'    code_review -> code_change [label=cause];\n' +
-		'    build -> code_review [label=cause];\n' +
-		'    build -> patch_verification [label=cause];\n' +
-		'    test_A -> build [label=cause];\n' +
-		'    artifact -> build [label=cause];\n' +
-		'    confidence_level -> test_A [label=cause];\n' +
-		'    confidence_level -> artifact [label=subject];\n' +
-		'    }';
-		
+	var mainAggregatedGraph = '';
+	
+	// Check which graph to draw separate aggregated or the one dependant on HM
+	if(SepAgg == 0){
+		// Basic aggregated graph structure
+		mainAggregatedGraph = 'digraph {\n' +
+			'    requirement \n' +	
+			'    code_change \n' +
+			'    code_review \n' +
+			'    patch_verification \n' +
+			'    build \n' +
+			'    test_A \n' +
+			'    artifact \n' +
+			'    confidence_level \n' +
+			'    code_change -> requirement [label=cause];\n' +		
+			'    patch_verification -> code_change [label=cause];\n' +
+			'    code_review -> code_change [label=cause];\n' +
+			'    build -> code_review [label=cause];\n' +
+			'    build -> patch_verification [label=cause];\n' +
+			'    test_A -> build [label=cause];\n' +
+			'    artifact -> build [label=cause];\n' +
+			'    confidence_level -> test_A [label=cause];\n' +
+			'    confidence_level -> artifact [label=subject];\n' +
+			'    }';
+	}
+	
+	else{
+		mainAggregatedGraph = 'digraph {\n' +
+			//'    component [time=1471278970475,type=component]\n' +
+			//'    requirement [time=1471358377845,type=requirement,contributor=David,dependencies=Requirement_4dotRequirement_4]\n' +
+			'    code_change \n' +
+			'    code_review \n' +
+			'    patch_verification \n' +
+			'    build \n' +
+			'    test_A \n' +
+			'    test_B \n' +
+			'    artifact \n' +
+			'    confidence_level \n' +
+			'    test_C \n' +
+			'    test_D \n' +
+			//'    Requirement_9 -> Component_1 [label=cause];\n' +
+			//'    Code_Change_6 -> Requirement_9 [label=cause];\n' +
+			'    patch_verification -> code_change [label=cause];\n' +
+			'    code_review -> code_change [label=cause];\n' +
+			'    build -> code_review [label=cause];\n' +
+			'    build -> patch_verification [label=cause];\n' +
+			'    test_A -> build [label=cause];\n' +
+			'    test_B -> build [label=cause];\n' +
+			'    artifact -> build [label=cause];\n' +
+			'    confidence_level -> test_A [label=cause];\n' +
+			'    confidence_level -> test_B [label=cause];\n' +
+			'    confidence_level -> artifact [label=subject];\n' +
+			'    test_C -> confidence_level [label=cause];\n' +
+			'    test_D -> confidence_level [label=cause];\n' +
+			'    }';
+	}
 	// Reads the String format digraph and converts it to proper graph 	
 	mainAggregatedGraph = dot.read(mainAggregatedGraph);
 
@@ -589,6 +777,11 @@ function decorateAggNodes (node, id, json){
 		node.shape = 'rect';
 		node.label = json.test_A;
 		node.style = 'fill: rgb('+ json.test_AStyle.r + ',' + json.test_AStyle.g + ',' + json.test_AStyle.b + ');';		
+	}
+	else if (id ==='test_B'){ // If node is of 'test_B' type, set shape, style and label of the node accordingly
+		node.shape = 'rect';
+		node.label = json.test_B;
+		node.style = 'fill: rgb('+ json.test_BStyle.r + ',' + json.test_BStyle.g + ',' + json.test_BStyle.b + ');';		
 	}	
 	else if (id ==='artifact'){ // If node is of 'artifact' type, set shape, style and label of the node accordingly
 		node.shape = 'circle';
@@ -600,7 +793,18 @@ function decorateAggNodes (node, id, json){
 		node.label = json.confidence;
 		node.style = 'fill: rgb('+ json.confidenceStyle.r + ',' + json.confidenceStyle.g + ',' + json.confidenceStyle.b + ');';
 	}				
-
+	else if (id ==='test_C'){ // If node is of 'test_C' type, set shape, style and label of the node accordingly	
+		node.shape = 'rect';
+		node.label = json.test_C;
+		node.style = json.test_CStyle;
+		node.style = 'fill: rgb('+ json.test_CStyle.r + ',' + json.test_CStyle.g + ',' + json.test_CStyle.b + ');';			
+	}	
+	else if (id ==='test_D'){ // If node is of 'test_D' type, set shape, style and label of the node accordingly
+		node.shape = 'rect';
+		node.label = json.test_D;
+		node.style = json.test_DStyle;
+		node.style = 'fill: rgb('+ json.test_DStyle.r + ',' + json.test_DStyle.g + ',' + json.test_DStyle.b + ');';			
+	}
 	// Returns a decorated node ready to be displayed in the graph
 	return node;
 }
@@ -822,10 +1026,11 @@ function setHeatMapProperties(x, y , z, arrayGraphs) {
 					if(selectedGraphs.length>0){
 						// $("body").animate({"scrollTop": $('#searchTextBox').offset().top}, 1000);
 						
-						drawAggregatedViewGraphOnClickHM(json); // Draws aggregated grpah
+						drawAggregatedViewGraphOnClickHM(json, 0); // Draws aggregated grpah
 						$("body").animate({scrollTop:700}, '500', 'swing'); // Scroll down from heatMap chart to displyed graphs 
 						
 						drawGraphs(selectedGraphs); // Draws individual graphs
+						$('#aggGraph-containerHM').height('380px');
 					}
 					else{
 						$('#graph-container').empty(); // If no record empty the container
