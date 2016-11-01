@@ -1,4 +1,4 @@
-{
+[{
   "meta": {
     "type": "EiffelSourceChangeCreatedEvent",
     "version": "1.0.0",
@@ -47,7 +47,7 @@
       "target": "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeee2"
     }
   ]
-}
+},
 
 
 
@@ -85,7 +85,7 @@
       "target": "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeee2"
     }
   ]
-}
+},
 
 
 
@@ -102,7 +102,7 @@
         "artifactId": "eiffel-serializer",
         "version": "1.0.3"
       }
-    },
+    }
   },
   "data": {
     "gav": {
@@ -144,7 +144,7 @@
       "target": "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeee3"
     }
   ]
-}
+},
 
 
 
@@ -181,7 +181,7 @@
       "target": "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeee2"
     }
   ]
-}
+},
 
 
 
@@ -217,7 +217,7 @@
       "target": "5"
     }
   ]
-}
+},
 
 
 {
@@ -253,7 +253,7 @@
       "target": "6"
     }
   ]
-}
+},
 
 
 {
@@ -278,7 +278,7 @@
   },
   "links": [
   ]
-}
+},
 
 
 
@@ -339,7 +339,7 @@
       "target": "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeee2"
     }
   ]
-}
+},
 
 
 
@@ -377,7 +377,7 @@
       "target": "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeee2"
     }
   ]
-}
+},
 
 
 
@@ -436,7 +436,7 @@
       "target": "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeee3"
     }
   ]
-}
+},
 
 
 
@@ -473,7 +473,7 @@
       "target": "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeee2"
     }
   ]
-}
+},
 
 
 
@@ -509,7 +509,7 @@
       "target": "12"
     }
   ]
-}
+},
 
 
 
@@ -548,7 +548,7 @@
       "target": "13"
     }
   ]
-}
+},
 
 
 
@@ -575,7 +575,7 @@
   },
   "links": [
   ]
-}
+},
 
 
 
@@ -633,7 +633,7 @@
       "target": "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeee2"
     }
   ]
-}
+},
 
 
 
@@ -671,7 +671,7 @@
       "target": "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeee2"
     }
   ]
-}
+},
 
 
 
@@ -730,7 +730,7 @@
       "target": "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeee3"
     }
   ]
-}
+},
 
 
 
@@ -767,7 +767,7 @@
       "target": "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeee2"
     }
   ]
-}
+},
 
 
 
@@ -803,7 +803,7 @@
       "target": "19"
     }
   ]
-}
+},
 
 
 
@@ -842,7 +842,7 @@
       "target": "20"
     }
   ]
-}
+},
 
 
 
@@ -869,7 +869,7 @@
   },
   "links": [
   ]
-}
+},
 
 
 
@@ -926,7 +926,7 @@
       "target": "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeee2"
     }
   ]
-}
+},
 
 
 
@@ -964,7 +964,7 @@
       "target": "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeee2"
     }
   ]
-}
+},
 
 
 
@@ -1023,7 +1023,7 @@
       "target": "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeee3"
     }
   ]
-}
+},
 
 
 
@@ -1060,7 +1060,7 @@
       "target": "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeee2"
     }
   ]
-}
+},
 
 
 
@@ -1096,7 +1096,7 @@
       "target": "26"
     }
   ]
-}
+},
 
 
 
@@ -1135,7 +1135,7 @@
       "target": "27"
     }
   ]
-}
+},
 
 
 
@@ -1162,7 +1162,7 @@
   },
   "links": [
   ]
-}
+},
 
 
 
@@ -1218,7 +1218,7 @@
       "target": "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeee2"
     }
   ]
-}
+},
 
 
 
@@ -1256,7 +1256,7 @@
       "target": "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeee2"
     }
   ]
-}
+},
 
 
 
@@ -1315,7 +1315,7 @@
       "target": "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeee3"
     }
   ]
-}
+},
 
 
 
@@ -1352,7 +1352,7 @@
       "target": "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeee2"
     }
   ]
-}
+},
 
 
 
@@ -1388,7 +1388,7 @@
       "target": "33"
     }
   ]
-}
+},
 
 
 
@@ -1427,7 +1427,7 @@
       "target": "34"
     }
   ]
-}
+},
 
 
 
@@ -1454,7 +1454,7 @@
   },
   "links": [
   ]
-}
+},
 
 
 
@@ -1508,7 +1508,7 @@
       "target": "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeee2"
     }
   ]
-}
+},
 
 
 
@@ -1546,7 +1546,7 @@
       "target": "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeee2"
     }
   ]
-}
+},
 
 
 
@@ -1605,7 +1605,7 @@
       "target": "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeee3"
     }
   ]
-}
+},
 
 
 
@@ -1642,7 +1642,7 @@
       "target": "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeee2"
     }
   ]
-}
+},
 
 
 
@@ -1678,7 +1678,7 @@
       "target": "40"
     }
   ]
-}
+},
 
 
 
@@ -1717,7 +1717,7 @@
       "target": "41"
     }
   ]
-}
+},
 
 
 
@@ -1745,7 +1745,7 @@
   "links": [
   ]
 }
-
+]
 
 
 
