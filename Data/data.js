@@ -13,8 +13,8 @@ var mongoDBUrl = "mongodb://localhost:3001/meteor";
 
 
 var fs = require('fs');
-// var arr = JSON.parse(fs.readFileSync(basePath+'confidence-level-joining/events.json', 'utf8'));
-var arr2 = JSON.parse(fs.readFileSync("./Eiffel sample data file.txt", 'utf8'));
+//var arr2 = JSON.parse(fs.readFileSync('./confidence-level-joining.json', 'utf8'));
+var arr2 = JSON.parse(fs.readFileSync("./Eiffel sample data file.json", 'utf8'));
 
 MongoClient.connect(mongoDBUrl, function(err, db) {
     for (var i = 0; i < arr2.length; i++){

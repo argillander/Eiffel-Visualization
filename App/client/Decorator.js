@@ -3,8 +3,8 @@ class Decorator {
     }
 
     static decorateNode(data) {
-        var s = [];
-        var id = data[0].meta.type;
+        let s = [];
+        let id = data[0].meta.type;
 
         if (id === "EiffelSourceChangeCreatedEvent") { // If node is of 'EiffelSourceChangeCreatedEvent' type, set shape, style and label of the node accordingly
             s.push("Changes Created" + "\n" + data[0].meta.version + "\n" + Decorator.formatDate(data[0].meta.time) + "\n" + data[0].data.author.name + "\n" + data[0].data.author.group);
@@ -56,12 +56,12 @@ class Decorator {
 
     static formatDate(date) {
         date = new Date(date);
-        var day = date.getDate();
-        var month = date.getMonth() + 1;
-        var year = date.getFullYear();
-        var hours = date.getHours();
-        var minutes = date.getMinutes();
-        var seconds = date.getSeconds();
+        let day = date.getDate();
+        let month = date.getMonth() + 1;
+        let year = date.getFullYear();
+        let hours = date.getHours();
+        let minutes = date.getMinutes();
+        let seconds = date.getSeconds();
 
         if (day < 10) {
             day = "0" + day;

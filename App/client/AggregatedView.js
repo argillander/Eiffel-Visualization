@@ -3,8 +3,8 @@ var dagD3Draw = require('dagre-d3'); // Library for drawing graph on canvas
 // Assigns color according to the pass fail ratio 
 function colorPassFail(avgValue) {
 
-    var passColor = {r: 95, g: 255, b: 95};
-    var failColor = {r: 240, g: 128, b: 128};
+    let passColor = {r: 95, g: 255, b: 95};
+    let failColor = {r: 240, g: 128, b: 128};
 
     return {
         r: Math.round(passColor.r * avgValue + failColor.r * (1 - avgValue)),
@@ -21,23 +21,23 @@ class AggregatedView {
 
     separateAggregatedGraphData(listTracibleEventIDs) {
 
-        var tEiffelSourceChangeCreatedEvent = 0;
-        var tEiffelSourceChangeSubmittedEvent = 0;
-        var tEiffelArtifactCreatedEvent = 0;
-        var tEiffelArtifactPublishedEvent = 0;
-        var tEiffelTestSuiteStartedEvent = 0;
-        var tEiffelTestSuiteFinishedEvent = 0;
-        var fEiffelTestSuiteFinishedEvent = 0;
-        var tEiffelConfidenceLevelModifiedEvent = 0;
-        var fEiffelConfidenceLevelModifiedEvent = 0;
+        let tEiffelSourceChangeCreatedEvent = 0;
+        let tEiffelSourceChangeSubmittedEvent = 0;
+        let tEiffelArtifactCreatedEvent = 0;
+        let tEiffelArtifactPublishedEvent = 0;
+        let tEiffelTestSuiteStartedEvent = 0;
+        let tEiffelTestSuiteFinishedEvent = 0;
+        let fEiffelTestSuiteFinishedEvent = 0;
+        let tEiffelConfidenceLevelModifiedEvent = 0;
+        let fEiffelConfidenceLevelModifiedEvent = 0;
 
-        var id = "";
+        let id = "";
 
-        for (var i = 0; i < listTracibleEventIDs.length; i++) {
+        for (let i = 0; i < listTracibleEventIDs.length; i++) {
 
-            for (var j = 0; j < listTracibleEventIDs[i].length; j++) {
+            for (let j = 0; j < listTracibleEventIDs[i].length; j++) {
 
-                var queryData = this.graphs.find({'meta.id': listTracibleEventIDs[i][j]}).fetch();
+                let queryData = this.graphs.find({'meta.id': listTracibleEventIDs[i][j]}).fetch();
 
                 id = queryData[0].meta.type;
 
@@ -75,7 +75,7 @@ class AggregatedView {
             }
         }
 
-        var json = {};
+        let json = {};
         // Aggregated results
         json.eiffelSourceChangeCreatedEvent = '  Changes Created (' + tEiffelSourceChangeCreatedEvent + '/' + tEiffelSourceChangeCreatedEvent + ')     ';
         json.eiffelSourceChangeSubmittedEvent = 'Changes Submitted (' + tEiffelSourceChangeSubmittedEvent + '/' + tEiffelSourceChangeSubmittedEvent + ')';
@@ -92,26 +92,24 @@ class AggregatedView {
 
     drawGraphs(myGraph, container, label) {
 
-        var svg = '';
-        var node = ''; // Stores node of graph
-        var dagD3Draw = require('dagre-d3');
+        let dagD3Draw = require('dagre-d3');
 
         $(container).empty(); // Empty the conatainer at start
 
         // Renderer is used to draw and show final graph to user
-        var renderer = new dagD3Draw.render();
+        let renderer = new dagD3Draw.render();
 
         // Append the title
         $(container).append('<h3>' + label + '</h3>');
 
-        for (var i = 0; i < myGraph.length; i++) {
+        for (let i = 0; i < myGraph.length; i++) {
 
             // Append graph to the div
             // Height of each graph can also be set from here
             $(container).append('<svg id="graph' + i + '" width="100%" height="45%"> <g> </svg>');
 
-            svg = d3.select('#graph' + i);
-            var inner = svg.select("g");
+            let svg = d3.select('#graph' + i);
+            let inner = svg.select("g");
 
             // renderer.run(gr, inner); if graph is string use graphlib.parse(g) and then it to this function
             myGraph[i].graph().rankdir = "LR"; // Horizontal or vertical drawing property of graph
@@ -124,8 +122,8 @@ class AggregatedView {
         }
 
         // Optional - resize the SVG element based on the contents
-        var svg = document.querySelector(container);
-        //var bbox = svg.getBBox();
+        let svg = document.querySelector(container);
+        //let bbox = svg.getBBox();
         svg.style.width = 100 + "%";
         svg.style.height = 750 + "px";
 
@@ -134,8 +132,8 @@ class AggregatedView {
 // make graph format for separated aggregated view 
     makeAggGraph(json) {
 
-        var g = [];
-        var states = ["EiffelSourceChangeCreatedEvent", "EiffelSourceChangeSubmittedEvent", "EiffelArtifactCreatedEvent", "EiffelArtifactPublishedEvent",
+        let g = [];
+        let states = ["EiffelSourceChangeCreatedEvent", "EiffelSourceChangeSubmittedEvent", "EiffelArtifactCreatedEvent", "EiffelArtifactPublishedEvent",
             "EiffelTestSuiteStartedEvent", "EiffelTestSuiteFinishedEvent", "EiffelConfidenceLevelModifiedEvent"];
 
         g[0] = new dagD3Draw.graphlib.Graph().setGraph({});
@@ -177,7 +175,7 @@ class AggregatedView {
                 });
             }
         });
-        for (var i = 0; i < states.length - 1; i++) {
+        for (let i = 0; i < states.length - 1; i++) {
             g[0].setEdge(states[i], states[i + 1], {});
         }
         return g;

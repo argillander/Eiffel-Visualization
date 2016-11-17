@@ -8,14 +8,13 @@ var agg = new AggregatedView();
 
 
 class HeatMapView {
-    constructor(Graphs){
+    constructor(Graphs) {
         this.graphs = Graphs;
     }
-// Setting the properties for heatMap chart
-    setHeatMapProperties(listTracibleEventIDs, x, y, z) {
-        var selectedGraphs = [];
 
-        var chart = { // Chart type
+// Setting the properties for heatMap chart
+    setHeatMapProperties(listTraceableEventIDs, x, y, z) {
+        let chart = { // Chart type
             renderTo: 'container',
             type: 'heatmap',
             // inverted: true,
@@ -25,18 +24,18 @@ class HeatMapView {
             marginBottom: 100
         };
 
-        var title = { // Title of the chart
+        let title = { // Title of the chart
             text: 'HeatMap: Test Suites Valid for Code Changes',
             marginTop: 0
         };
-        var xAxis = { // x value which are requirements in our case
+        let xAxis = { // x value which are requirements in our case
             categories: x
         };
-        var yAxis = { // y value which are testcases in our case
+        let yAxis = { // y value which are testcases in our case
             categories: y,
             title: null
         };
-        var colorAxis = { // Changing the color in heatMap according to the nature of the data is done from here
+        let colorAxis = { // Changing the color in heatMap according to the nature of the data is done from here
             min: 0,
             stops: [
                 //["", '#FFFFFF'],
@@ -46,7 +45,7 @@ class HeatMapView {
             // minColor: '#FFFFFF',
             // maxColor: Highcharts.getOptions().colors[0]
         };
-        var legend = { // Bar which is shown along with the heatMap, shows scale (0-100) and color accordingly
+        let legend = { // Bar which is shown along with the heatMap, shows scale (0-100) and color accordingly
             //align: 'right',
             layout: 'vertical',
             margin: 300,
@@ -57,9 +56,9 @@ class HeatMapView {
             reversed: false,
             symbolHeight: 673
         };
-        var tooltip = { // Tool tip
+        let tooltip = { // Tool tip
             formatter: function () {
-                var toolTip = '';
+                let toolTip = '';
 
                 if (this.point.value === "") {// This means testcase is not valid for a code change
                     toolTip = 'NA';
@@ -72,10 +71,10 @@ class HeatMapView {
                 return toolTip;
             }
         };
-        var credits = { // Set this property to false otherwise it shows HighChart logo and link
+        let credits = { // Set this property to false otherwise it shows HighChart logo and link
             enabled: false
         };
-        var series = [{ // Link between testcases and code changes
+        let series = [{ // Link between testcases and code changes
             name: 'Percentage failure of testcases per requirement',
             borderWidth: 1,
             data: z,
@@ -84,19 +83,19 @@ class HeatMapView {
                 color: '#000000'
             }
         }];
-        var self = this;
-        var plotOptions = { // Click event of heatMap which shows individual instance of selected record
+        let self = this;
+        let plotOptions = { // Click event of heatMap which shows individual instance of selected record
             series: {
                 events: {
                     click: function (event) {
-                        var $graphContainer = $('#graph-container');
-                        var $aggGraphContainerHM = $('#aggGraph-containerHM');
+                        let $graphContainer = $('#graph-container');
+                        let $aggGraphContainerHM = $('#aggGraph-containerHM');
                         // Empty aggregated graph containers
                         $graphContainer.empty();
                         $aggGraphContainerHM.empty();
 
                         // As user clicks on heatmap function returns the related record
-                        var json = self.clickEventHM(listTracibleEventIDs, event.point.options.x, event.point.options.y, x, y);
+                        let json = self.clickEventHM(listTraceableEventIDs, event.point.options.x, event.point.options.y, x, y);
 
                         if (json.length > 0) {
 
@@ -114,7 +113,7 @@ class HeatMapView {
         };
 
         // HeatMap properties to be passed on to the final function to draw heatMap chart according to these properties
-        var json = {};
+        let json = {};
         json.chart = chart;
         json.title = title;
         json.xAxis = xAxis;
@@ -130,16 +129,16 @@ class HeatMapView {
     };
 
 // Fetch input data for heatmap
-    aggregatedCCTS(listTracibleEventIDs) {
-        var xValue = [];
-        var yValue = [];
-        var zValue = [];
+    aggregatedCCTS(listTraceableEventIDs) {
+        let xValue = [];
+        let yValue = [];
+        let zValue = [];
 
-        for (var i = 0; i < listTracibleEventIDs.length; i++) {
+        for (let i = 0; i < listTraceableEventIDs.length; i++) {
 
-            for (var j = 0; j < listTracibleEventIDs[i].length; j++) {
+            for (let j = 0; j < listTraceableEventIDs[i].length; j++) {
 
-                var queryData = this.graphs.find({'meta.id': listTracibleEventIDs[i][j]}).fetch();
+                let queryData = this.graphs.find({'meta.id': listTraceableEventIDs[i][j]}).fetch();
 
                 if (queryData[0].meta.type == "EiffelSourceChangeCreatedEvent") {
                     xValue.push("code_change# " + queryData[0].meta.id);
@@ -157,7 +156,7 @@ class HeatMapView {
             }
         }
         // Input data for heatMap to be pass on to another function draw heatMap chart on this input data
-        var jsonHeatMapInput = {};
+        let jsonHeatMapInput = {};
 
         jsonHeatMapInput.xValue = xValue; // code changes
         jsonHeatMapInput.yValue = yValue; // testcases
@@ -166,28 +165,29 @@ class HeatMapView {
         return jsonHeatMapInput;
 
     };
-    clickEventHM(listTracibleEventIDs, pointx, pointy, x, y, arrayGraphs) {
 
-    var g = [];
-    g[0] = new dagD3Draw.graphlib.Graph().setGraph({});
+    clickEventHM(listTraceableEventIDs, pointX, pointY, x, y, arrayGraphs) {
 
-    for (var j = 0; j < listTracibleEventIDs[pointx].length; j++) {
+        let g = [];
+        g[0] = new dagD3Draw.graphlib.Graph().setGraph({});
 
-        var queryData1 = this.graphs.find({'meta.id': listTracibleEventIDs[pointx][j]}).fetch();
+        for (let j = 0; j < listTraceableEventIDs[pointX].length; j++) {
 
-        var decorate = Decorator.decorateNode(queryData1);
-        g[0].setNode(queryData1[0].meta.type, {label: decorate[0], style: decorate[1], shape: decorate[2]});
+            let queryData1 = this.graphs.find({'meta.id': listTraceableEventIDs[pointX][j]}).fetch();
 
-        if (j != listTracibleEventIDs[pointx].length - 1) {
+            let decorate = Decorator.decorateNode(queryData1);
+            g[0].setNode(queryData1[0].meta.type, {label: decorate[0], style: decorate[1], shape: decorate[2]});
 
-            var queryData2 = this.graphs.find({'meta.id': listTracibleEventIDs[pointx][j + 1]}).fetch();
-            g[0].setEdge(queryData1[0].meta.type, queryData2[0].meta.type, {});
+            if (j != listTraceableEventIDs[pointX].length - 1) {
 
+                let queryData2 = this.graphs.find({'meta.id': listTraceableEventIDs[pointX][j + 1]}).fetch();
+                g[0].setEdge(queryData1[0].meta.type, queryData2[0].meta.type, {});
+
+            }
         }
-    }
 
-    return g;
+        return g;
 
-};
+    };
 }
 export default HeatMapView;
