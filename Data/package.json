@@ -1,0 +1,7 @@
+{
+  "name": "importData",
+  "private": true,
+  "scripts": {
+    "start": "node data.js"
+  }
+}

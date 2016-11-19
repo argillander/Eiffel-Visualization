@@ -94,19 +94,17 @@ class AggregatedView {
 
         let dagD3Draw = require('dagre-d3');
 
-        $(container).empty(); // Empty the conatainer at start
-
         // Renderer is used to draw and show final graph to user
         let renderer = new dagD3Draw.render();
 
         // Append the title
-        $(container).append('<h3>' + label + '</h3>');
+        container.append('<h3>' + label + '</h3>');
 
         for (let i = 0; i < myGraph.length; i++) {
 
             // Append graph to the div
             // Height of each graph can also be set from here
-            $(container).append('<svg id="graph' + i + '" width="100%" height="45%"> <g> </svg>');
+            container.append('<svg id="graph' + i + '" width="100%" height="150%"> <g> </svg>');
 
             let svg = d3.select('#graph' + i);
             let inner = svg.select("g");
@@ -115,18 +113,9 @@ class AggregatedView {
             myGraph[i].graph().rankdir = "LR"; // Horizontal or vertical drawing property of graph
             myGraph[i].graph().ranksep = 30; // Horizontal size of the diplayed graph
             myGraph[i].graph().nodesep = 30; // Nodes' inter distances vertical
-
             // Draws the final aggregated graph
             renderer(inner, myGraph[i]);
-
         }
-
-        // Optional - resize the SVG element based on the contents
-        let svg = document.querySelector(container);
-        //let bbox = svg.getBBox();
-        svg.style.width = 100 + "%";
-        svg.style.height = 750 + "px";
-
     };
 
 // make graph format for separated aggregated view 

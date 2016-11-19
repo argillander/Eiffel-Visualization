@@ -4,36 +4,36 @@ class Decorator {
 
     static decorateNode(data) {
         let s = [];
-        let id = data[0].meta.type;
+        let id = data.meta.type;
 
         if (id === "EiffelSourceChangeCreatedEvent") { // If node is of 'EiffelSourceChangeCreatedEvent' type, set shape, style and label of the node accordingly
-            s.push("Changes Created" + "\n" + data[0].meta.version + "\n" + Decorator.formatDate(data[0].meta.time) + "\n" + data[0].data.author.name + "\n" + data[0].data.author.group);
+            s.push("Changes Created" + "\n" + data.meta.version + "\n" + Decorator.formatDate(data.meta.time) + "\n" + data.data.author.name + "\n" + data.data.author.group);
             s.push('fill: #66FF66');
             s.push('circle');
         }
         else if (id === "EiffelSourceChangeSubmittedEvent") { // Set properties according to the node types
-            s.push("Changes Submitted" + "\n" + data[0].meta.version + "\n" + Decorator.formatDate(data[0].meta.time) + "\n" + data[0].data.submitter.name + "\n" + data[0].data.submitter.group);
+            s.push("Changes Submitted" + "\n" + data.meta.version + "\n" + Decorator.formatDate(data.meta.time) + "\n" + data.data.submitter.name + "\n" + data.data.submitter.group);
             s.push('fill: #66FF66');
             s.push('circle');
         }
         else if (id === "EiffelArtifactCreatedEvent") { // Set properties according to the node types
-            s.push("Artifact Created" + "\n" + data[0].meta.version + "\n" + Decorator.formatDate(data[0].meta.time));
+            s.push("Artifact Created" + "\n" + data.meta.version + "\n" + Decorator.formatDate(data.meta.time));
             s.push('fill: #66FF66');
             s.push('circle');
         }
         else if (id === "EiffelArtifactPublishedEvent") { // Set properties according to the node types
-            s.push("Artifact Published" + "\n" + data[0].meta.version + "\n" + Decorator.formatDate(data[0].meta.time));
+            s.push("Artifact Published" + "\n" + data.meta.version + "\n" + Decorator.formatDate(data.meta.time));
             s.push('fill: #66FF66');
             s.push('circle');
         }
         else if (id === "EiffelTestSuiteStartedEvent") { // Set properties according to the node types
-            s.push("Test Suite Started" + "\n" + data[0].meta.version + "\n" + Decorator.formatDate(data[0].meta.time) + "\n" + data[0].data.name);
+            s.push("Test Suite Started" + "\n" + data.meta.version + "\n" + Decorator.formatDate(data.meta.time) + "\n" + data.data.name);
             s.push('fill: #66FF66');
             s.push('circle');
         }
         else if (id === "EiffelTestSuiteFinishedEvent") { // Set properties according to the node types
-            s.push("Test Suite Finished" + "\n" + data[0].meta.version + "\n" + Decorator.formatDate(data[0].meta.time) + "\n" + data[0].data.outcome.verdict);
-            if (data[0].data.outcome.verdict == "PASSED") {
+            s.push("Test Suite Finished" + "\n" + data.meta.version + "\n" + Decorator.formatDate(data.meta.time) + "\n" + data.data.outcome.verdict);
+            if (data.data.outcome.verdict == "PASSED") {
                 s.push('fill: #66FF66');
             }
             else {
@@ -42,13 +42,19 @@ class Decorator {
             s.push('circle');
         }
         else if (id === "EiffelConfidenceLevelModifiedEvent") { // Set properties according to the node types
-            s.push("Confidence Level" + "\n" + data[0].meta.version + "\n" + Decorator.formatDate(data[0].meta.time) + "\n" + data[0].data.name + "\n" + data[0].data.value);
-            if (data[0].data.name == "stable") {
+            s.push("Confidence Level" + "\n" + data.meta.version + "\n" + Decorator.formatDate(data.meta.time) + "\n" + data.data.name + "\n" + data.data.value);
+            if (data.data.name == "stable") {
                 s.push('fill: #66FF66');
             }
             else {
                 s.push('fill: #FF0000');
             }
+            s.push('circle');
+        }
+        else {
+            s.push(id);
+            s.push('fill: #66FF66');
+
             s.push('circle');
         }
         return s;
