@@ -1,14 +1,13 @@
 import { Meteor } from 'meteor/meteor';
+import Graphs from '../lib/collections';
 
 Meteor.startup(() => {
   // code to run on server at startup
 });
-
-Graphs = new Mongo.Collection('example2');	
-
-if (Meteor.isServer) {
-	//This code only runs on the server
-	Meteor.publish('graphs', function tasksPublication() {
-		return Graphs.find();
-  }); 
-}	
+//
+//
+// Meteor.publish('graphs', function tasksPublication() {
+// 	let tmp = Graphs.find();
+// 	console.log(tmp);
+// 	return tmp;
+// });

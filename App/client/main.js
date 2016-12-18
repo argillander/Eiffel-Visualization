@@ -3,9 +3,9 @@ import HeatMapView from './HeatMapView';
 import Decorator from './Decorator';
 import MakeGraphs from './MakeGraphs';
 import GraphData from './GraphData';
-
+import Graphs from '../lib/collections';
 //mongoDB collection name (same as in server)
-var Graphs = new Mongo.Collection('example2');
+
 
 var selectedGraphs = [];
 var listTracibleEventIDs = [];
@@ -15,18 +15,19 @@ var hm = new HeatMapView(Graphs);
 var mk = new MakeGraphs(Graphs);
 
 // subscribe to the change in the mongoDB
-const handle = Meteor.subscribe('graphs');
-
-// Keep track every time the data changes in the database
-Tracker.autorun(() => {
-    if (handle.ready()) {// When the data is ready to be fetched
-        let gd = new GraphData(Graphs);
-
-        // Set references between the events.
-        mainFunc(gd);
-    }
-});
-
+// const handle = Meteor.subscribe('graphs');
+//
+// // Keep track every time the data changes in the database
+// Tracker.autorun(() => {
+//     if (handle.ready()) {// When the data is ready to be fetched
+//         let gd = new GraphData(Graphs);
+//
+//         // Set references between the events.
+//         mainFunc(gd);
+//     }
+// });
+let gd = new GraphData(Graphs);
+mainFunc(gd);
 function mainFunc(gd) {
 
     $(document).ready(function () {
@@ -73,7 +74,7 @@ function mainFunc(gd) {
             }  // Settings
         );
 
-        // If the range is changed by the user, modify the heatMap accordingly 
+        // If the range is changed by the user, modify the heatMap accordingly
         timeline.on("rangechanged", function (properties) {
 
             // To make the div empty for stop showing previous graphs to user
@@ -94,8 +95,8 @@ function mainFunc(gd) {
 
             agg.drawGraphs(mk.makeGraph(gd), $gc, 'Individual Instances'); // draw the graphs on canvas
 
-            let jsonSepAggregated = agg.separateAggregatedGraphData(listTracibleEventIDs); // separate aggregated view data
-            agg.drawGraphs(agg.makeAggGraph(jsonSepAggregated), $ag, 'Aggregated Results'); // draw the aggregated graph on canvas
+            //let jsonSepAggregated = agg.separateAggregatedGraphData(listTracibleEventIDs); // separate aggregated view data
+            //agg.drawGraphs(agg.makeAggGraph(jsonSepAggregated), $ag, 'Aggregated Results'); // draw the aggregated graph on canvas
 
             // Related code changes: jsonHeatMapInput.xValue
             // Related test suite: jsonHeatMapInput.yValue
