@@ -24,7 +24,7 @@ MongoClient.connect(mongoDBUrl, function(err, db) {
         try {
             db.collection('example2').insertOne(o);
         } catch (e) {
-           print(e);
+            console.log(e);
         }
     }
     console.log("Done");
