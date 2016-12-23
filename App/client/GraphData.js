@@ -36,6 +36,13 @@ class GraphData{
         this.getData({'meta.time': {$gte: start, $lte: end}});
     }
 
+    getStartEventsFromDB(query={}){
+        this.startEvents = [];
+        query['meta.type'] = this.startEvent;
+          // Query for new data
+        return this.graphs.find(query).fetch();
+    }
+
     getData(query={}){
         /**
          * Update the data set with data matching a mongodb query, or all data.
