@@ -9,11 +9,14 @@ Router.configure({
 Router.route('/', function () {
     console.log("Landing");
     this.render('Landing', {});
-
+    let gd = new GraphData(Graphs);
+    let start_events = gd.getStartEventsFromDB({}, 1, 3);
     Template.Landing.helpers({
+        nr_of_events: function() {
+            return start_events.count();
+        },
         events: function() {
-            let gd = new GraphData(Graphs);
-            return gd.getStartEventsFromDB();
+            return start_events;
         }
     });
 });

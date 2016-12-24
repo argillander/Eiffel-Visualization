@@ -3,5 +3,9 @@
   "private": true,
   "scripts": {
     "start": "node data.js"
+  },
+  "dependencies": {
+    "minimist": "1.2.0",
+    "mongodb": "2.2.16"
   }
 }

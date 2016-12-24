@@ -36,11 +36,11 @@ class GraphData{
         this.getData({'meta.time': {$gte: start, $lte: end}});
     }
 
-    getStartEventsFromDB(query={}){
+    getStartEventsFromDB(query={}, skip=0, limit=0){
         this.startEvents = [];
         query['meta.type'] = this.startEvent;
           // Query for new data
-        return this.graphs.find(query).fetch();
+        return this.graphs.find(query, {skip: skip, limit: limit});
     }
 
     getData(query={}){
