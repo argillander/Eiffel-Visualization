@@ -1,9 +1,10 @@
 <template name="Landing">
     {{ nr_of_events }}
+    {{ events }}
     <ul>
     {{#each events}}
         <li class="row">
-            {{ meta.id }}
+            {{ _nodeCount }}
         </li>
     {{/each}}
     </ul>

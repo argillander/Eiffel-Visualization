@@ -38,7 +38,7 @@ class GraphData{
 
     getStartEventsFromDB(query={}, skip=0, limit=0){
         this.startEvents = [];
-        query['meta.type'] = this.startEvent;
+        //query['meta.type'] = this.startEvent;
           // Query for new data
         return this.graphs.find(query, {skip: skip, limit: limit});
     }
