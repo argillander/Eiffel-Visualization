@@ -1,5 +1,6 @@
 import Graphs from '../lib/collections';
 import MakeGraphs from "./MakeGraphs"
+import formatDate from '../lib/date_formatter'
 
 const handle = Meteor.subscribe('data');
 Tracker.autorun(() => {
@@ -64,7 +65,8 @@ Router.route('/graph', function () {
                     zoomable: true
                 }  // Settings
             );
-
+            let nr_of_results = $("#nr_of_results");
+            let total_nr_of_results = $("#total_nr_of_results");
             // If the range is changed by the user, modify the heatMap accordingly
             timeline.on("rangechanged", function (properties) {
 
@@ -82,9 +84,12 @@ Router.route('/graph', function () {
                         console.log('serverDataResponse', "Error:" + err.reason);
                         return;
                     }
-                    console.log(response);
+                    total_nr_of_results.text(response);
                 });
+                $("label[for = lblDate1]").text("Date Range: " + formatDate(new Date(timeLineStart)) + "  -  " + formatDate(new Date(timeLineEnd)));
                 var tmp = Graphs['data'].find({}).fetch();
+
+                nr_of_results.text(tmp.length);
                 var graph = MakeGraphs.makeGraph(tmp);
                 MakeGraphs.drawGraphs(graph, $gc, 'Individual Instances'); // draw the graphs on canvas
 

@@ -13,11 +13,12 @@ Meteor.startup(() => {
     Meteor.methods({
         collect_data: function (from, to) {
             Graphs['data'].remove({userId: this.userId});
-            var tmp = Graphs['example3'].find({'start_time': {$gte: new Date(from), $lte: new Date(to)}}).fetch();
+            var tmp = Graphs['example3'].find({'start_time': {$gte: new Date(from), $lte: new Date(to)}}, {skip: 0, limit: 20}).fetch();
             for (var i = 0; i < tmp.length; i++) {
                 tmp[i]['userId'] = this.userId;
                 Graphs['data'].insert(tmp[i]);
             }
+            return Graphs['example3'].find({'start_time': {$gte: new Date(from), $lte: new Date(to)}}).count();
         }
     });
 });

@@ -207,7 +207,12 @@ MongoClient.connect(mongoDBUrl, function (err, db) {
                 for (let i = 0; i < arrayGraphs.length; i++) {
                     if (arrayGraphs[i].links != null) {
                         for (let j = 0; j < arrayGraphs[i].links.length; j++) {
+
                             let target = eventDict[arrayGraphs[i].links[j].target];
+                            if(target == undefined) {
+                                console.log(arrayGraphs[i].links[j].target);
+                                continue
+                            }
                             arrayGraphs[i].links[j]['ref'] = target;
                             target.nextActivities.push({
                                 'ref': arrayGraphs[i],
