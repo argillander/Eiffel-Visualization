@@ -1,14 +1,10 @@
 import Graphs from '../lib/collections';
 import MakeGraphs from "./MakeGraphs"
 
-const handle = Meteor.subscribe('books');
-const handle2 = Meteor.subscribe('graphs');
+const handle = Meteor.subscribe('data');
 Tracker.autorun(() => {
     if (handle.ready()) {// When the data is ready to be fetched
         console.log("updated");
-    }
-    if (handle2.ready()){
-        console.log("updated2");
     }
 });
 
@@ -18,26 +14,20 @@ Router.configure({
 Router.route('/', function () {
     console.log("Landing");
     this.render('Landing', {});
-    Meteor.call('welcome', "hej", function(err,response) {
-        if(err) {
-            console.log('serverDataResponse', "Error:" + err.reason);
-            return;
-        }
-        console.log(response);
-    });
 
     Template.Landing.helpers({
         nr_of_events: function() {
             return 2;
         },
         events: function() {
-            return Graphs['books'].find({});
+            return Graphs['data'].find({});
         }
     });
 });
 
 Router.route('/graph', function () {
     console.log("Graph");
+
     this.render('Graph', {});
     Template.Graph.rendered=function() { // Run this code when the elements are created
 
@@ -87,7 +77,14 @@ Router.route('/graph', function () {
 
                 let timeLineStart = properties.start.getTime();
                 let timeLineEnd = properties.end.getTime();
-                var tmp = Graphs['example3'].find({}).fetch();
+                Meteor.call('collect_data', timeLineStart, timeLineEnd, function(err,response) {
+                    if(err) {
+                        console.log('serverDataResponse', "Error:" + err.reason);
+                        return;
+                    }
+                    console.log(response);
+                });
+                var tmp = Graphs['data'].find({}).fetch();
                 var graph = MakeGraphs.makeGraph(tmp);
                 MakeGraphs.drawGraphs(graph, $gc, 'Individual Instances'); // draw the graphs on canvas
 

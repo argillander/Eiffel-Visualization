@@ -1,24 +1,23 @@
 import { Meteor } from 'meteor/meteor';
 import Graphs from '../lib/collections';
 
+Graphs['example3'] = new Mongo.Collection('example3');
+
 Meteor.startup(() => {
     // code to run on server at startup
     cleanUp();  // Remove old sessions and data from those.
-    Meteor.publish('books', function() {
+    Meteor.publish('data', function() {
         console.log(this.userId);
-        return Graphs['books'].find({userId: this.userId});
-    });
-    Meteor.publish('graphs', function() {
-        return Graphs['example3'].find({});
+        return Graphs['data'].find({userId: this.userId});
     });
     Meteor.methods({
-        welcome: function (name) {
-            if(name==undefined || name.length<=0) {
-                throw new Meteor.Error(404, "Please enter your name");
+        collect_data: function (from, to) {
+            Graphs['data'].remove({userId: this.userId});
+            var tmp = Graphs['example3'].find({'start_time': {$gte: new Date(from), $lte: new Date(to)}}).fetch();
+            for (var i = 0; i < tmp.length; i++) {
+                tmp[i]['userId'] = this.userId;
+                Graphs['data'].insert(tmp[i]);
             }
-            Graphs['books'].remove({userId: this.userId});
-            Graphs['books'].insert({userId: this.userId, title: "hej"});
-            return "Welcome " + name;
         }
     });
 });
@@ -31,10 +30,9 @@ function cleanUp() {
     var users_left = Meteor.users.find({}, {fields: {'_id':1}}).fetch();
     var diff = user_diff(users, users_left);
     for (var i = 0; i < diff.length; i++) {
-        Graphs['books'].remove({userId: diff[i]});
+        Graphs['data'].remove({userId: diff[i]});
         Meteor.guestUsers.remove({user_id: diff[i]});
     }
-
 }
 
 function user_diff (a1, a2) {
