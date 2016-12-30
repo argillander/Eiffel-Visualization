@@ -1,8 +1,16 @@
-import Graph from "./Graph";
-import GraphData from "./GraphData";
 import Graphs from '../lib/collections';
-import AggregatedView from './AggregatedView';
+import MakeGraphs from "./MakeGraphs"
 
+const handle = Meteor.subscribe('books');
+const handle2 = Meteor.subscribe('graphs');
+Tracker.autorun(() => {
+    if (handle.ready()) {// When the data is ready to be fetched
+        console.log("updated");
+    }
+    if (handle2.ready()){
+        console.log("updated2");
+    }
+});
 
 Router.configure({
     layoutTemplate: 'Layout'
@@ -10,15 +18,20 @@ Router.configure({
 Router.route('/', function () {
     console.log("Landing");
     this.render('Landing', {});
-    let gd = new GraphData(Graphs['example3']);
-    let start_events = gd.getStartEventsFromDB({}, 0, 3);
+    Meteor.call('welcome', "hej", function(err,response) {
+        if(err) {
+            console.log('serverDataResponse', "Error:" + err.reason);
+            return;
+        }
+        console.log(response);
+    });
 
     Template.Landing.helpers({
         nr_of_events: function() {
-            return start_events.count();
+            return 2;
         },
         events: function() {
-            return start_events;
+            return Graphs['books'].find({});
         }
     });
 });
@@ -26,25 +39,12 @@ Router.route('/', function () {
 Router.route('/graph', function () {
     console.log("Graph");
     this.render('Graph', {});
-    Template.Graph.rendered=function(){ // Run this code when the elements are created
-        Graph.mainFunc();
-    };
-
-});
-Router.route('/graph2', function () {
-    console.log("Graph2");
-    this.render('Graph', {});
     Template.Graph.rendered=function() { // Run this code when the elements are created
 
-        var selectedGraphs = [];
-        var listTracibleEventIDs = [];
-
-        var agg = new AggregatedView(Graphs['example2']);
         $(document).ready(function () {
             let $btnHide = $('#btnHide');
             let $container = $('#container');
 
-            //TODO: remove this:
             $container.hide();
             $btnHide.html('Show Heatmap');
 
@@ -87,10 +87,9 @@ Router.route('/graph2', function () {
 
                 let timeLineStart = properties.start.getTime();
                 let timeLineEnd = properties.end.getTime();
-                var tmp;
-                tmp = Graphs['example3'].find({"_isDirected":true}).fetch();
-                console.log(tmp);
-                //agg.drawGraphs(tmp, $gc, 'Individual Instances'); // draw the graphs on canvas
+                var tmp = Graphs['example3'].find({}).fetch();
+                var graph = MakeGraphs.makeGraph(tmp);
+                MakeGraphs.drawGraphs(graph, $gc, 'Individual Instances'); // draw the graphs on canvas
 
             });
         });

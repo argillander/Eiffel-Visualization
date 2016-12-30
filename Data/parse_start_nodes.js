@@ -2,7 +2,7 @@
  * Created by jonathan on 2016-12-24.
  */
 "use strict";
-var dagD3Draw = require('dagre-d3'); // Library for drawing graph on canvas
+
 var mongoDBUrl = "mongodb://localhost:3001/meteor";
 var startEvent = "EiffelSourceChangeCreatedEvent";
 var disallowedLinks = ['PREVIOUS_VERSION'];
@@ -56,6 +56,7 @@ if (argv['h'] == true || argv['help'] == true) {
 var MongoClient = require('mongodb').MongoClient;
 
 MongoClient.connect(mongoDBUrl, function (err, db) {
+
 
     function decorateNode(data) {
         let s = [];
@@ -143,17 +144,19 @@ MongoClient.connect(mongoDBUrl, function (err, db) {
         return year + "-" + month + "-" + day + " " + hours + ":" + minutes + ":" + seconds;
     }
 
-
+    var recursive = 0;
     function makeGraphRecursive(startNode, g, preventCycles, callback) {
         if (preventCycles.indexOf(startNode.meta.id) > -1) {
-            callback();
             return;
         }
         let decorate = decorateNode(startNode);
-        g.setNode(
-            startNode.meta.id,
-            {label: decorate[0], style: decorate[1], shape: decorate[2]}
-        );
+        g.nodes[startNode.meta.id]= {
+            label: decorate[0],
+            style: decorate[1],
+            shape: decorate[2],
+            time: new Date(startNode.meta.time)
+        };
+
         preventCycles.push(startNode.meta.id);
         for (let j = 0; j < startNode.nextActivities.length; j++) {
             if (startNode.nextActivities[j].type == "PREVIOUS_VERSION") {  //Skip all links that point back to earlier versions.
@@ -166,10 +169,16 @@ MongoClient.connect(mongoDBUrl, function (err, db) {
                 }
 
             }
-            g.setEdge(startNode.meta.id, startNode.nextActivities[j].ref.meta.id, {});
+            recursive++;
+            g.edges.push({from: startNode.meta.id, to: startNode.nextActivities[j].ref.meta.id});
 
             makeGraphRecursive(startNode.nextActivities[j].ref, g, preventCycles, callback);
-
+            if (preventCycles.indexOf(startNode.nextActivities[j].ref.meta.id) > -1) {
+                recursive--;
+                if (recursive == 0){
+                    callback();
+                }
+            }
         }
     }
 
@@ -179,7 +188,6 @@ MongoClient.connect(mongoDBUrl, function (err, db) {
          * The only function that shall be talking to mongodb to don't fuck up the data.
          */
         let from = db.collection(from_collection);
-        // Clear any old data from the data set.
         let arrayGraphs = [];
         let eventDict = {};
         let startEvents = [];
@@ -212,32 +220,46 @@ MongoClient.connect(mongoDBUrl, function (err, db) {
                 return callback(startEvents);
             }
         );  // Query for new data
-
-
     }
-
-
     let to = db.collection(to_collection);
-    console.log(to_collection);
+    to.drop();
     let g = [];
     getData({}, function (startNodes) {
-
         for (let i = 0; i < startNodes.length; i++) {
             let startNode = startNodes[i];
-            let tmp = new dagD3Draw.graphlib.Graph().setGraph({});
-            tmp['_id'] = startNode.meta.id;
+            let tmp = {
+                '_id': startNode.meta.id,
+                'start_time': new Date(startNode.meta.time),
+                'nodes': {},
+                'edges': [],
+            };
             let preventCycles = [];
             makeGraphRecursive(startNode, tmp, preventCycles, function () {
-                let rec = JSON.parse(JSON.stringify(tmp).split("u0000").join('').split("u0001").join('').split("\\").join(''));
+                let count = 0;
+                let endTime = new Date(0);
+                for (var k in tmp['nodes']) {
+                    if (tmp['nodes'].hasOwnProperty(k)) {
+                        count++;
+                        if (tmp['nodes'][k]['time'].getTime()>endTime.getTime()){
+                            endTime = tmp['nodes'][k]['time'];
+                        }
+                    }
 
-                to.insert(rec, function(err, result) {
-                    console.log(err);
+                }
+                tmp['end_time'] = endTime;
+                tmp['node_count'] = count;
+                tmp['edge_count'] = tmp["edges"].length;
+
+                to.insert(tmp, function(err, result) {
+                    if(err != null){
+                        console.log(err);
+                    }
+                    if(i+1 == startNodes.length){
+                        console.log("Generated "+startNodes.length + " graphs");
+                        process.exit()
+                    }
                 });
-
             });
         }
-        console.log("Done?");
     });
-
-//
 });

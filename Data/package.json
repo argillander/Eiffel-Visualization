@@ -2,7 +2,8 @@
   "name": "importData",
   "private": true,
   "scripts": {
-    "start": "node data.js"
+    "import": "node data.js",
+    "import_small": "node data.js ./generated_eiffel_events.json example2"
   },
   "dependencies": {
     "minimist": "1.2.0",
