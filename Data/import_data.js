@@ -24,7 +24,7 @@ if (argv['_'].length != 2) {
     collection = argv['_'][1];
 }
 if (argv['h'] == true || argv['help'] == true) {
-    console.log("Usage: node parse_start_nodes.js [OPTIONS]... FILE DEST");
+    console.log("Usage: node import_data.js [OPTIONS]... FILE DEST");
     console.log("Parses start nodes from a json FILE to a DESTination collection.\n");
     console.log("If the collection exists the content will be dropped.\n");
     console.log("The json file should be in utf8.\n");

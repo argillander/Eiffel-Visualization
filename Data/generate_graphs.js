@@ -39,7 +39,7 @@ if (argv['_'].length != 2) {
     to_collection = argv['_'][1];
 }
 if (argv['h'] == true || argv['help'] == true) {
-    console.log("Usage: node parse_start_nodes.js [OPTIONS]... SOURCE DEST");
+    console.log("Usage: node generate_graphs.js [OPTIONS]... SOURCE DEST");
     console.log("Parses start nodes from a SOURCE collection to a DESTination collection of a\n specified type.\n");
     console.log("  -m, --mongodb           Mongodb url");
     console.log("  -t, --type              Event type as start node.");
