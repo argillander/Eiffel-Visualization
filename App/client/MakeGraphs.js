@@ -1,50 +1,55 @@
-import Decorator from './Decorator';
 
 var dagD3Draw = require('dagre-d3'); // Library for drawing graph on canvas
 
 class MakeGraphs {
-    constructor(Graphs) {
-        this.graphs = Graphs;
-    }
-    makeGraphRecursive(startNode, g, preventCycles){
-        if (preventCycles.indexOf(startNode.meta.id) > -1){
-            return;
-        }
-        let decorate = Decorator.decorateNode(startNode);
-        g.setNode(
-            startNode.meta.id,
-            {label: decorate[0], style: decorate[1], shape: decorate[2]}
-        );
-        preventCycles.push(startNode.meta.id);
-        for (let j = 0; j < startNode.nextActivities.length; j++) {
-            if(startNode.nextActivities[j].type == "PREVIOUS_VERSION"){  //Skip all links that point back to earlier versions.
-                continue;
-            }
-            if(startNode.nextActivities[j].ref.meta.type == "EiffelSourceChangeSubmittedEvent"){  //Skip all source changes except the first.
-                let tmp = preventCycles.length == 1;
-                if(!tmp){
-                    continue;
-                }
-
-            }
-                g.setEdge(startNode.meta.id, startNode.nextActivities[j].ref.meta.id, {});
-
-                this.makeGraphRecursive(startNode.nextActivities[j].ref, g, preventCycles);
-
-        }
-    }
-    makeGraph(gd) {
+    static makeGraph(gd) {
 
         let g = [];
 
-        for (let i = 0; i < gd.getStartEvents().length; i++) {
-            let startNode = gd.getStartEvents()[i];
+        for (let i = 0; i < gd.length; i++) {
             g[i] = new dagD3Draw.graphlib.Graph().setGraph({});
-            let preventCycles = [];
-            this.makeGraphRecursive(startNode, g[i], preventCycles);
+            for (var k in gd[i]['nodes']) {
+                if (gd[i]['nodes'].hasOwnProperty(k)) {
+                    g[i].setNode(
+                        k,
+                        {label: gd[i]['nodes'][k]['label'], style: gd[i]['nodes'][k]['style'], shape: gd[i]['nodes'][k]['shape']}
+                    );
+                }
+
+            }
+            for (let j = 0; j < gd[i]['edges'].length; j++) {
+                g[i].setEdge(gd[i]['edges'][j]['from'], gd[i]['edges'][j]['to'], {});
+            }
         }
         return g;
     }
+    static drawGraphs(myGraph, container, label) {
+
+    let dagD3Draw = require('dagre-d3');
+
+    // Renderer is used to draw and show final graph to user
+    let renderer = new dagD3Draw.render();
+
+    // Append the title
+    container.append('<h3>' + label + '</h3>');
+
+    for (let i = 0; i < myGraph.length; i++) {
+
+        // Append graph to the div
+        // Height of each graph can also be set from here
+        container.append('<svg id="graph' + i + '" width="100%" height="150%"> <g> </svg>');
+
+        let svg = d3.select('#graph' + i);
+        let inner = svg.select("g");
+
+        // renderer.run(gr, inner); if graph is string use graphlib.parse(g) and then it to this function
+        myGraph[i].graph().rankdir = "LR"; // Horizontal or vertical drawing property of graph
+        myGraph[i].graph().ranksep = 30; // Horizontal size of the diplayed graph
+        myGraph[i].graph().nodesep = 30; // Nodes' inter distances vertical
+        // Draws the final aggregated graph
+        renderer(inner, myGraph[i]);
+    }
+}
 }
 
 export default MakeGraphs;

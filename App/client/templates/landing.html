@@ -1,0 +1,11 @@
+<template name="Landing">
+    {{ nr_of_events }}
+    {{ events }}
+    <ul>
+    {{#each events}}
+        <li class="row">
+            {{ title }}
+        </li>
+    {{/each}}
+    </ul>
+</template>
