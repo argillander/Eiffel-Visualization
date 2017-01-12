@@ -1,78 +1,55 @@
-import Decorator from './Decorator';
 
 var dagD3Draw = require('dagre-d3'); // Library for drawing graph on canvas
 
 class MakeGraphs {
-    constructor(Graphs) {
-        this.graphs = Graphs;
-    }
-
-    getEventInfo(ID, arrayGraphs, arrayEvents) {
-        /**
-            Build chain recursively.
-         */
-        for (let i = 0; i < arrayGraphs.length; i++) {
-            if (arrayGraphs[i].links != null) {
-                for (let j = 0; j < arrayGraphs[i].links.length; j++) {
-                    if(arrayGraphs[i].links[j].target === ID){
-                        arrayEvents.push(arrayGraphs[i].links[j].target);
-                        this.getEventInfo(arrayGraphs[i].meta.id, arrayGraphs, arrayEvents);
-                    }
-                }
-            }
-        }
-    }
-
-    makeLinkedEvents(arrayGraphs) {
-        /**
-         * Generate a list of lists that are the chains for the flow
-         */
-        let listTraceableEventIDs = [];
-        let arrayEvents = [];
-        for (let i = 0; i < arrayGraphs.length; i++) {
-            if (arrayGraphs[i].meta.type == "EiffelSourceChangeCreatedEvent") { // first node in flow
-                arrayEvents.push(arrayGraphs[i].meta.id);
-                this.getEventInfo(arrayGraphs[i].meta.id, arrayGraphs, arrayEvents);
-            }
-            if (arrayEvents.length != 0) {
-                // add chain to listTraceableEventIDs and reset chain
-                listTraceableEventIDs.push(arrayEvents);
-                arrayEvents = [];
-            }
-        }
-
-        return listTraceableEventIDs;
-    }
-
-    queryReturnDateRange(start, end) {
-        return this.graphs.find({'meta.time': {$gte: start, $lte: end}}).fetch();
-    }
-
-    makeGraph(listTracibleEventIDs) {
+    static makeGraph(gd) {
 
         let g = [];
-        let states = ["EiffelSourceChangeCreatedEvent", "EiffelSourceChangeSubmittedEvent", "EiffelArtifactCreatedEvent", "EiffelArtifactPublishedEvent",
-            "EiffelTestSuiteStartedEvent", "EiffelTestSuiteFinishedEvent", "EiffelConfidenceLevelModifiedEvent"];
 
-        for (let i = 0; i < listTracibleEventIDs.length; i++) {
-
+        for (let i = 0; i < gd.length; i++) {
             g[i] = new dagD3Draw.graphlib.Graph().setGraph({});
-
-            for (let j = 0; j < listTracibleEventIDs[i].length; j++) {
-
-                let query1 = this.graphs.find({'meta.id': listTracibleEventIDs[i][j]}).fetch();
-
-                if (j != listTracibleEventIDs[i].length - 1) {
-
-                    let query2 = this.graphs.find({'meta.id': listTracibleEventIDs[i][j + 1]}).fetch();
-                    g[i].setEdge(query1[0].meta.type, query2[0].meta.type, {});
+            for (var k in gd[i]['nodes']) {
+                if (gd[i]['nodes'].hasOwnProperty(k)) {
+                    g[i].setNode(
+                        k,
+                        {label: gd[i]['nodes'][k]['label'], style: gd[i]['nodes'][k]['style'], shape: gd[i]['nodes'][k]['shape']}
+                    );
                 }
-                let decorate = Decorator.decorateNode(query1);
-                g[i].setNode(query1[0].meta.type, {label: decorate[0], style: decorate[1], shape: decorate[2]});
+
+            }
+            for (let j = 0; j < gd[i]['edges'].length; j++) {
+                g[i].setEdge(gd[i]['edges'][j]['from'], gd[i]['edges'][j]['to'], {});
             }
         }
         return g;
     }
+    static drawGraphs(myGraph, container, label) {
+
+    let dagD3Draw = require('dagre-d3');
+
+    // Renderer is used to draw and show final graph to user
+    let renderer = new dagD3Draw.render();
+
+    // Append the title
+    container.append('<h3>' + label + '</h3>');
+
+    for (let i = 0; i < myGraph.length; i++) {
+
+        // Append graph to the div
+        // Height of each graph can also be set from here
+        container.append('<svg id="graph' + i + '" width="100%" height="150%"> <g> </svg>');
+
+        let svg = d3.select('#graph' + i);
+        let inner = svg.select("g");
+
+        // renderer.run(gr, inner); if graph is string use graphlib.parse(g) and then it to this function
+        myGraph[i].graph().rankdir = "LR"; // Horizontal or vertical drawing property of graph
+        myGraph[i].graph().ranksep = 30; // Horizontal size of the diplayed graph
+        myGraph[i].graph().nodesep = 30; // Nodes' inter distances vertical
+        // Draws the final aggregated graph
+        renderer(inner, myGraph[i]);
+    }
+}
 }
 
 export default MakeGraphs;

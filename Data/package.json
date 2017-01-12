@@ -1,0 +1,13 @@
+{
+  "name": "importData",
+  "private": true,
+  "scripts": {
+    "import": "node import_data.js",
+    "generate": "node generate_graphs.js"
+  },
+  "dependencies": {
+    "minimist": "1.2.0",
+    "mongodb": "2.2.16",
+    "dagre-d3": "^0.4.17"
+  }
+}
