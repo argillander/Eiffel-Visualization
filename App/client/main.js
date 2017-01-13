@@ -26,6 +26,14 @@ Router.route('/', function () {
     });
 });
 
+Router.route('/test', function () {
+    console.log("Test");
+
+    this.render('NewGraph', {});
+    Template.NewGraph.rendered=function() { };
+
+});
+
 Router.route('/graph', function () {
     console.log("Graph");
 

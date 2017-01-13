@@ -37,7 +37,7 @@ class MakeGraphs {
 
         // Append graph to the div
         // Height of each graph can also be set from here
-        container.append('<svg id="graph' + i + '" width="100%" height="150%"> <g> </svg>');
+        container.append('<svg id="graph' + i + '" width="100%" height="50vh"> <g> </svg>');
 
         let svg = d3.select('#graph' + i);
         let inner = svg.select("g");
@@ -48,6 +48,7 @@ class MakeGraphs {
         myGraph[i].graph().nodesep = 30; // Nodes' inter distances vertical
         // Draws the final aggregated graph
         renderer(inner, myGraph[i]);
+        svgPanZoom('#graph' + i);
     }
 }
 }
