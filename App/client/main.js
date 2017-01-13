@@ -26,17 +26,9 @@ Router.route('/', function () {
     });
 });
 
-Router.route('/test', function () {
-    console.log("Test");
-
-    this.render('NewGraph', {});
-    Template.NewGraph.rendered=function() { };
-
-});
-
 Router.route('/graph', function () {
     console.log("Graph");
-
+    var queryStringParams = this.params.query;
     this.render('Graph', {});
     Template.Graph.rendered=function() { // Run this code when the elements are created
 
@@ -62,11 +54,19 @@ Router.route('/graph', function () {
             // Time Line
 
             $('#timeline').empty();
-
+            let dates = [];
+            if (queryStringParams['start'] == undefined){
+                dates.push({start: new Date()});
+            } else {
+                dates.push({start: new Date(parseInt(queryStringParams['start']))});
+            }
+            if (queryStringParams['end'] != undefined){
+                dates.push({start: new Date(parseInt(queryStringParams['end']))});
+            }
             // Get time line settings Date range etc to draw the timeline accordingly
             let timeline = new vis.Timeline(
                 document.getElementById('timeline'), // DOM element where the Timeline will be attached
-                new vis.DataSet([{start: new Date()}]), // Start place
+                new vis.DataSet(dates), // Start place
                 {
                     selectable: false,
                     showCurrentTime: false,
@@ -76,17 +76,19 @@ Router.route('/graph', function () {
             let nr_of_results = $("#nr_of_results");
             let total_nr_of_results = $("#total_nr_of_results");
             // If the range is changed by the user, modify the heatMap accordingly
+            let $gc = $('#graph-container');
+            let $ag = $('#aggGraph-containerHM');
             timeline.on("rangechanged", function (properties) {
 
                 // To make the div empty for stop showing previous graphs to user
                 $container.empty();
-                let $gc = $('#graph-container');
-                let $ag = $('#aggGraph-containerHM');
+
                 $gc.empty();
                 $ag.empty();
 
                 let timeLineStart = properties.start.getTime();
                 let timeLineEnd = properties.end.getTime();
+                Router.go("/graph?start=" + timeLineStart + "&end=" + timeLineEnd, {}, {notify: false});
                 Meteor.call('collect_data', timeLineStart, timeLineEnd, function(err,response) {
                     if(err) {
                         console.log('serverDataResponse', "Error:" + err.reason);
@@ -101,6 +103,17 @@ Router.route('/graph', function () {
                 var graph = MakeGraphs.makeGraph(tmp);
                 MakeGraphs.drawGraphs(graph, $gc, 'Individual Instances'); // draw the graphs on canvas
 
+            });
+            Tracker.autorun(() => {
+                if (handle.ready()) {// When the data is ready to be fetched
+                    $container.empty();
+                    $gc.empty();
+                    $ag.empty();
+                    let tmp = Graphs['data'].find({}).fetch();
+                    nr_of_results.text(tmp.length);
+                    let graph = MakeGraphs.makeGraph(tmp);
+                    MakeGraphs.drawGraphs(graph, $gc, 'Individual Instances'); // draw the graphs on canvas
+                }
             });
         });
     }
