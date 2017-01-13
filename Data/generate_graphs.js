@@ -2,12 +2,13 @@
  * Created by jonathan on 2016-12-24.
  */
 "use strict";
-
+var fs = require('fs');
 var mongoDBUrl = "mongodb://localhost:3001/meteor";
 var startEvent = "EiffelSourceChangeCreatedEvent";
 var disallowedLinks = ['PREVIOUS_VERSION'];
 var from_collection = "";
 var to_collection = "";
+var settings_file = "settings.json";
 var argv = require('minimist')(process.argv.slice(2));
 
 if (argv['mongodb'] != undefined || argv['m'] != undefined) {
@@ -24,6 +25,13 @@ if (argv['type'] != undefined || argv['t'] != undefined) {
         startEvent = argv['t'];
     }
 }
+if (argv['settings'] != undefined || argv['s'] != undefined) {
+    if (argv['settings'] != undefined) {
+        settings_file = argv['settings'];
+    } else {
+        settings_file = argv['s'];
+    }
+}
 if (argv['disallowed-links'] != undefined || argv['d'] != undefined) {
     if (argv['disallowed-links'] != undefined) {
         disallowedLinks = argv['disallowed-links'].split(',');
@@ -38,6 +46,7 @@ if (argv['_'].length != 2) {
     from_collection = argv['_'][0];
     to_collection = argv['_'][1];
 }
+
 if (argv['h'] == true || argv['help'] == true) {
     console.log("Usage: node generate_graphs.js [OPTIONS]... SOURCE DEST");
     console.log("Parses start nodes from a SOURCE collection to a DESTination collection of a\n specified type.\n");
@@ -46,13 +55,83 @@ if (argv['h'] == true || argv['help'] == true) {
     console.log("  -d, --disallowed-links  Disallowed links in structure. Comma separated list");
     console.log("                          without space ex. -d LINK1,LINK2 ");
     console.log("  -h, --help              This help text");
+    console.log("  -s, --settings          Settings file");
     console.log("\n\nBy default:");
     console.log("  --mongodb=mongodb://localhost:3001/meteor");
     console.log("  --type=EiffelSourceChangeCreatedEvent");
     console.log("  --disallowed-links=PREVIOUS_VERSION");
+    console.log("  --settings=settings.json");
     return;
 }
 
+var settings = JSON.parse(fs.readFileSync(settings_file, 'utf8'));
+
+function formatDate(date) {
+    date = new Date(date);
+    let day = date.getDate();
+    let month = date.getMonth() + 1;
+    let year = date.getFullYear();
+    let hours = date.getHours();
+    let minutes = date.getMinutes();
+    let seconds = date.getSeconds();
+
+    if (day < 10) {
+        day = "0" + day;
+    }
+    if (month < 10) {
+        month = "0" + month;
+    }
+    if (hours < 10) {
+        hours = "0" + hours;
+    }
+    if (minutes < 10) {
+        minutes = "0" + minutes;
+    }
+    if (seconds < 10) {
+        seconds = "0" + seconds;
+    }
+
+    return year + "-" + month + "-" + day + " " + hours + ":" + minutes + ":" + seconds;
+}
+function getValueFromPath(str, data) {
+    let path = str.split(".");
+    let value = data;
+    for(let j=0; j<path.length; j++){
+        try {
+            value = value[path[j]];
+        } catch(err) {
+            value = undefined;
+        }
+        if(value== undefined){
+            value = "";
+            break;
+        }
+    }
+    return value;
+}
+function formatSettingsString(str, data) {
+    let res_str = "";
+    let tmp = str.split("{");
+    for(let i=0; i<tmp.length; i++){
+        if (tmp[i].indexOf('}') > -1){
+            let tmp_list = tmp[i].split("}");
+            let func = function (str) {
+                return str
+            };
+            if (tmp_list[0].indexOf('date>') > -1){
+                tmp_list[0] = tmp_list[0].split('date>')[1];
+                func = function (str) {
+                    return formatDate(str)
+                };
+            }
+            let value = getValueFromPath(tmp_list[0], data);
+            res_str = res_str + func(value) + tmp_list[1];
+        } else {
+            res_str = res_str + tmp[i];
+        }
+    }
+    return res_str;
+}
 var MongoClient = require('mongodb').MongoClient;
 
 MongoClient.connect(mongoDBUrl, function (err, db) {
@@ -61,87 +140,22 @@ MongoClient.connect(mongoDBUrl, function (err, db) {
     function decorateNode(data) {
         let s = [];
         let id = data.meta.type;
+        let key = id;
+        if (settings["events"][id]==undefined){
+            key = "default";
+        }
+        s.push(formatSettingsString(settings["events"][key]["text"], data));
+        let color = settings["events"][key]["color"]["default"];
+        if (settings["events"][key]["color"]["path"]!=undefined) {
+            let value = getValueFromPath(settings["events"][key]["color"]["path"], data)
+            if (settings["events"][key]["color"]["values"][value]!=undefined) {
+                color = settings["events"][key]["color"]["values"][value];
+            }
+        }
+        s.push('fill: '+color);
+        s.push(settings["events"][key]["shape"]);
 
-        if (id === "EiffelSourceChangeCreatedEvent") { // If node is of 'EiffelSourceChangeCreatedEvent' type, set shape, style and label of the node accordingly
-            s.push("Changes Created" + "\n" + data.meta.version + "\n" + formatDate(data.meta.time) + "\n" + data.data.author.name + "\n" + data.data.author.group);
-            s.push('fill: #66FF66');
-            s.push('circle');
-        }
-        else if (id === "EiffelSourceChangeSubmittedEvent") { // Set properties according to the node types
-            s.push("Changes Submitted" + "\n" + data.meta.version + "\n" + formatDate(data.meta.time) + "\n" + data.data.submitter.name + "\n" + data.data.submitter.group);
-            s.push('fill: #66FF66');
-            s.push('circle');
-        }
-        else if (id === "EiffelArtifactCreatedEvent") { // Set properties according to the node types
-            s.push("Artifact Created" + "\n" + data.meta.version + "\n" + formatDate(data.meta.time));
-            s.push('fill: #66FF66');
-            s.push('circle');
-        }
-        else if (id === "EiffelArtifactPublishedEvent") { // Set properties according to the node types
-            s.push("Artifact Published" + "\n" + data.meta.version + "\n" + formatDate(data.meta.time));
-            s.push('fill: #66FF66');
-            s.push('circle');
-        }
-        else if (id === "EiffelTestSuiteStartedEvent") { // Set properties according to the node types
-            s.push("Test Suite Started" + "\n" + data.meta.version + "\n" + formatDate(data.meta.time) + "\n" + data.data.name);
-            s.push('fill: #66FF66');
-            s.push('circle');
-        }
-        else if (id === "EiffelTestSuiteFinishedEvent") { // Set properties according to the node types
-            s.push("Test Suite Finished" + "\n" + data.meta.version + "\n" + formatDate(data.meta.time) + "\n" + data.data.outcome.verdict);
-            if (data.data.outcome.verdict == "PASSED") {
-                s.push('fill: #66FF66');
-            }
-            else {
-                s.push('fill: #FF0000');
-            }
-            s.push('circle');
-        }
-        else if (id === "EiffelConfidenceLevelModifiedEvent") { // Set properties according to the node types
-            s.push("Confidence Level" + "\n" + data.meta.version + "\n" + formatDate(data.meta.time) + "\n" + data.data.name + "\n" + data.data.value);
-            if (data.data.name == "stable") {
-                s.push('fill: #66FF66');
-            }
-            else {
-                s.push('fill: #FF0000');
-            }
-            s.push('circle');
-        }
-        else {
-            s.push(id);
-            s.push('fill: #66FF66');
-
-            s.push('circle');
-        }
         return s;
-    }
-
-    function formatDate(date) {
-        date = new Date(date);
-        let day = date.getDate();
-        let month = date.getMonth() + 1;
-        let year = date.getFullYear();
-        let hours = date.getHours();
-        let minutes = date.getMinutes();
-        let seconds = date.getSeconds();
-
-        if (day < 10) {
-            day = "0" + day;
-        }
-        if (month < 10) {
-            month = "0" + month;
-        }
-        if (hours < 10) {
-            hours = "0" + hours;
-        }
-        if (minutes < 10) {
-            minutes = "0" + minutes;
-        }
-        if (seconds < 10) {
-            seconds = "0" + seconds;
-        }
-
-        return year + "-" + month + "-" + day + " " + hours + ":" + minutes + ":" + seconds;
     }
 
     var recursive = 0;
