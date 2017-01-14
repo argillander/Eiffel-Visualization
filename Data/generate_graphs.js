@@ -123,6 +123,20 @@ function formatSettingsString(str, data) {
                 func = function (str) {
                     return formatDate(str)
                 };
+            } else if (tmp_list[0].indexOf('listDict>') > -1){
+                tmp_list[0] = tmp_list[0].split('listDict>')[1];
+                let temp = tmp_list[0].split('[');
+                tmp_list[0] = temp[0];
+                let key = temp[1].split(']')[0];
+                func = function (obj) {
+                    for (let k=0; k<obj.length; k++){
+                        if(obj[k]["key"]==key){
+                            return obj[k]["value"]
+                        }
+                    }
+                    return "";
+                };
+
             }
             let value = getValueFromPath(tmp_list[0], data);
             res_str = res_str + func(value) + tmp_list[1];
@@ -135,7 +149,7 @@ function formatSettingsString(str, data) {
 function getDataValue(node) {
     if (settings["events"][node.meta.type]!=undefined){
         if (settings["events"][node.meta.type]["value"]!=undefined){
-            return getValueFromPath(settings["events"][node.meta.type]["value"], node)
+            return formatSettingsString(settings["events"][node.meta.type]["value"], node)
         }
     }
     return undefined;
@@ -155,7 +169,7 @@ MongoClient.connect(mongoDBUrl, function (err, db) {
         s.push(formatSettingsString(settings["events"][key]["text"], data));
         let color = settings["events"][key]["color"]["default"];
         if (settings["events"][key]["color"]["path"]!=undefined) {
-            let value = getValueFromPath(settings["events"][key]["color"]["path"], data)
+            let value = formatSettingsString(settings["events"][key]["color"]["path"], data);
             if (settings["events"][key]["color"]["values"][value]!=undefined) {
                 color = settings["events"][key]["color"]["values"][value];
             }

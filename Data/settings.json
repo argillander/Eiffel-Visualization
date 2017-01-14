@@ -42,44 +42,68 @@
         "default":  "#d0d0d0"
       }
     },
+    "EiffelTestCaseStartedEvent": {
+      "text": "Test Case Started\n{meta.version}\n{date>meta.time}\n{listDict>data.customData[name]}",
+      "shape": "circle",
+      "color":{
+        "default":  "#d0d0d0"
+      },
+      "identifier": "{listDict>data.customData[name]}"
+    },
     "EiffelTestSuiteFinishedEvent": {
       "text": "Test Suite Finished\n{meta.version}\n{date>meta.time}\n{data.outcome.verdict}",
       "shape": "circle",
       "color":{
         "default":  "#FFFF00",
-        "path": "data.outcome.verdict",
+        "path": "{data.outcome.verdict}",
         "values": {
           "PASSED": "#66FF66",
           "FAILED": "#FF0000"
         }
       },
-      "value": "data.outcome.verdict"
+      "value": "{data.outcome.verdict}"
     },
     "EiffelTestCaseFinishedEvent": {
       "text": "Test Case Finished\n{meta.version}\n{date>meta.time}\n{data.outcome.verdict}",
       "shape": "circle",
       "color":{
         "default":  "#FFFF00",
-        "path": "data.outcome.verdict",
+        "path": "{data.outcome.verdict}",
         "values": {
           "PASSED": "#66FF66",
           "FAILED": "#FF0000"
         }
       },
-      "value": "data.outcome.verdict"
+      "identifier": "{listDict>data.customData[name]}",
+      "value": "{data.outcome.verdict}"
     },
     "EiffelConfidenceLevelModifiedEvent": {
       "text": "Confidence Level\n{meta.version}\n{date>meta.time}\n{data.name}\n{data.value}",
       "shape": "circle",
       "color":{
         "default":  "#FFFF00",
-        "path": "data.value",
+        "path": "{data.value}",
         "values": {
           "SUCCESS": "#66FF66",
           "FAILURE": "#FF0000"
         }
       },
-      "value": "data.value"
+      "identifier": "{data.name}",
+      "value": "{data.value}"
+    },
+    "EiffelActivityFinishedEvent": {
+      "text": "Activity Finished\n{meta.version}\n{date>meta.time}\n{listDict>data.customData[name]}\n{data.outcome.conclusion}",
+      "shape": "circle",
+      "color":{
+        "default":  "#FFFF00",
+        "path": "{data.outcome.conclusion}",
+        "values": {
+          "SUCCESSFUL": "#66FF66",
+          "UNSUCCESSFUL": "#FF0000"
+        }
+      },
+      "identifier": "{listDict>data.customData[name]}",
+      "value": "{data.outcome.conclusion}"
     }
   }
 }

@@ -75,18 +75,20 @@ Example:
         "default":  "#d0d0d0"
       }
     },
-    "EiffelConfidenceLevelModifiedEvent": {
-      "text": "Confidence Level\n{meta.version}\n{date>meta.time}\n{data.name}\n{data.value}",
+    "EiffelTestCaseFinishedEvent": {
+      "text": "Test Case Finished\n{meta.version}\n{date>meta.time}\n{data.outcome.verdict}",
       "shape": "circle",
       "color":{
         "default":  "#FFFF00",
-        "path": "data.value",
+        "path": "{data.outcome.verdict}",
         "values": {
-          "SUCCESS": "#66FF66",
-          "FAILURE": "#FF0000"
+          "PASSED": "#66FF66",
+          "FAILED": "#FF0000"
         }
-      }
-    }
+      },
+      "identifier": "{listDict>data.customData[name]}",
+      "value": "{data.outcome.verdict}"
+    },
   }
 }
 ```
@@ -108,6 +110,7 @@ Table containing implemented functions that can be used in the text field.
 | Function | Explanation |
 |----|----|
 | `{date>` | Converts timestamp to `YYYY-MM-DD HH:MM:SS` |
+| `{listDict>` | Looks up value in a list formatted in the following way <pre>"customData": [<br>&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;"value": "ActT1",<br>&nbsp;&nbsp;&nbsp;&nbsp;"key": "name"<br>&nbsp;&nbsp;},<br>&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;"value": 4,<br>&nbsp;&nbsp;&nbsp;&nbsp;"key": "iteration"<br>&nbsp;&nbsp;}<br>],</pre> <br> Example usage {listDict>path[key]}|
 
 
 ##### Shape
@@ -123,7 +126,7 @@ The shape value can be one of the following:
 
 ##### Color
 
-The last part is the color element.
+The color element.
 ```JSON
   "color":{
     "default":  "#FFFF00",
@@ -139,3 +142,12 @@ The default key is mandatory and the value should be a default color of the even
 It exists a way of depending on a value change the color of an event.
 To change color depending on value a path key with the path to the data that should be used when choosing color and a values object with a mapping between values and colors shall be included in the object.
 
+##### Identifier
+
+Optional field.
+Used together with the type when aggregating the graph.
+
+##### Value
+
+Optional field.
+Used in the aggregation.
