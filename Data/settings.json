@@ -12,35 +12,40 @@
       "shape": "circle",
       "color":{
         "default":  "#d0d0d0"
-      }
+      },
+      "identifier": "{listDict>data.customData[name]}"
     },
     "EiffelSourceChangeSubmittedEvent": {
       "text": "Changes Submitted\n{meta.version}\n{date>meta.time}\n{data.submitter.name}\n{data.submitter.group}",
       "shape": "circle",
       "color":{
         "default":  "#d0d0d0"
-      }
+      },
+      "identifier": "{listDict>data.customData[name]}"
     },
     "EiffelArtifactCreatedEvent": {
-      "text": "Artifact Created\n{meta.version}\n{date>meta.time}",
+      "text": "Artifact Created\n{meta.version}\n{date>meta.time}\n{listDict>data.customData[name]}",
       "shape": "circle",
       "color":{
-        "default":  "#d0d0d0"
-      }
+        "default":  "#FFFF00"
+      },
+      "identifier": "{listDict>data.customData[name]}"
     },
     "EiffelArtifactPublishedEvent": {
-      "text": "Artifact Published\n{meta.version}\n{date>meta.time}",
+      "text": "Artifact Published\n{meta.version}\n{date>meta.time}\n{listDict>data.customData[name]}",
       "shape": "circle",
       "color":{
         "default":  "#d0d0d0"
-      }
+      },
+      "identifier": "{listDict>data.customData[name]}"
     },
     "EiffelTestSuiteStartedEvent": {
       "text": "Test Suite Started\n{meta.version}\n{date>meta.time}\n{data.name}",
       "shape": "circle",
       "color":{
         "default":  "#d0d0d0"
-      }
+      },
+      "identifier": "{listDict>data.customData[name]}"
     },
     "EiffelTestCaseStartedEvent": {
       "text": "Test Case Started\n{meta.version}\n{date>meta.time}\n{listDict>data.customData[name]}",
@@ -61,7 +66,8 @@
           "FAILED": "#FF0000"
         }
       },
-      "value": "{data.outcome.verdict}"
+      "value": "{data.outcome.verdict}",
+      "identifier": "{listDict>data.customData[name]}"
     },
     "EiffelTestCaseFinishedEvent": {
       "text": "Test Case Finished\n{meta.version}\n{date>meta.time}\n{data.outcome.verdict}",
@@ -104,6 +110,30 @@
       },
       "identifier": "{listDict>data.customData[name]}",
       "value": "{data.outcome.conclusion}"
+    },
+    "EiffelActivityStartedEvent": {
+      "text": "Activity started\n{meta.version}\n{date>meta.time}\n{listDict>data.customData[name]}",
+      "shape": "circle",
+      "color":{
+        "default":  "#FFFF00"
+      },
+      "identifier": "{listDict>data.customData[name]}"
+    },
+    "EiffelActivityTriggeredEvent": {
+      "text": "Activity Triggered\n{meta.version}\n{date>meta.time}\n{listDict>data.customData[name]}",
+      "shape": "circle",
+      "color":{
+        "default":  "#FFFF00"
+      },
+      "identifier": "{listDict>data.customData[name]}"
+    },
+    "EiffelCompositionDefinedEvent": {
+      "text": "Composition Defined\n{meta.version}\n{date>meta.time}\n{listDict>data.customData[name]}",
+      "shape": "circle",
+      "color":{
+        "default":  "#d0d0d0"
+      },
+      "identifier": "{listDict>data.customData[name]}"
     }
   }
 }

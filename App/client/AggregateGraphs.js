@@ -11,11 +11,15 @@ class AggregateGraphs {
         for (let i = 0; i < gd.length; i++) {
             for (var k in gd[i]['nodes']) {
                 if (gd[i]['nodes'].hasOwnProperty(k)) {
-                    if (!events.hasOwnProperty(gd[i]['nodes'][k].type)){
-                        events[gd[i]['nodes'][k].type] = {count: 1, values: [gd[i]['nodes'][k].value]}
+                    let key = gd[i]['nodes'][k].type;
+                    if (gd[i]['nodes'][k]['identifier']!=undefined){
+                        key = key +"_"+ gd[i]['nodes'][k]['identifier']
+                    }
+                    if (!events.hasOwnProperty(key)){
+                        events[key] = {count: 1, values: [gd[i]['nodes'][k].value]}
                     } else {
-                        events[gd[i]['nodes'][k].type]['count'] += 1;
-                        events[gd[i]['nodes'][k].type]['values'].push(gd[i]['nodes'][k].value);
+                        events[key]['count'] += 1;
+                        events[key]['values'].push(gd[i]['nodes'][k].value);
                     }
                 }
             }

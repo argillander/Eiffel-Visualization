@@ -154,6 +154,14 @@ function getDataValue(node) {
     }
     return undefined;
 }
+function getIdentifierValue(node) {
+    if (settings["events"][node.meta.type]!=undefined){
+        if (settings["events"][node.meta.type]["identifier"]!=undefined){
+            return formatSettingsString(settings["events"][node.meta.type]["identifier"], node)
+        }
+    }
+    return undefined;
+}
 var MongoClient = require('mongodb').MongoClient;
 
 MongoClient.connect(mongoDBUrl, function (err, db) {
@@ -192,6 +200,7 @@ MongoClient.connect(mongoDBUrl, function (err, db) {
             shape: decorate[2],
             time: new Date(startNode.meta.time),
             type: startNode.meta.type,
+            identifier: getIdentifierValue(startNode),
             value: getDataValue(startNode)
         };
 
