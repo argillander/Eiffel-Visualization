@@ -132,6 +132,14 @@ function formatSettingsString(str, data) {
     }
     return res_str;
 }
+function getDataValue(node) {
+    if (settings["events"][node.meta.type]!=undefined){
+        if (settings["events"][node.meta.type]["value"]!=undefined){
+            return getValueFromPath(settings["events"][node.meta.type]["value"], node)
+        }
+    }
+    return undefined;
+}
 var MongoClient = require('mongodb').MongoClient;
 
 MongoClient.connect(mongoDBUrl, function (err, db) {
@@ -168,7 +176,9 @@ MongoClient.connect(mongoDBUrl, function (err, db) {
             label: decorate[0],
             style: decorate[1],
             shape: decorate[2],
-            time: new Date(startNode.meta.time)
+            time: new Date(startNode.meta.time),
+            type: startNode.meta.type,
+            value: getDataValue(startNode)
         };
 
         preventCycles.push(startNode.meta.id);

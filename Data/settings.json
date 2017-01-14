@@ -46,12 +46,27 @@
       "text": "Test Suite Finished\n{meta.version}\n{date>meta.time}\n{data.outcome.verdict}",
       "shape": "circle",
       "color":{
-        "default":  "#FF0000",
+        "default":  "#FFFF00",
         "path": "data.outcome.verdict",
         "values": {
-          "PASSED": "#66FF66"
+          "PASSED": "#66FF66",
+          "FAILED": "#FF0000"
         }
-      }
+      },
+      "value": "data.outcome.verdict"
+    },
+    "EiffelTestCaseFinishedEvent": {
+      "text": "Test Case Finished\n{meta.version}\n{date>meta.time}\n{data.outcome.verdict}",
+      "shape": "circle",
+      "color":{
+        "default":  "#FFFF00",
+        "path": "data.outcome.verdict",
+        "values": {
+          "PASSED": "#66FF66",
+          "FAILED": "#FF0000"
+        }
+      },
+      "value": "data.outcome.verdict"
     },
     "EiffelConfidenceLevelModifiedEvent": {
       "text": "Confidence Level\n{meta.version}\n{date>meta.time}\n{data.name}\n{data.value}",
@@ -63,7 +78,8 @@
           "SUCCESS": "#66FF66",
           "FAILURE": "#FF0000"
         }
-      }
+      },
+      "value": "data.value"
     }
   }
 }
