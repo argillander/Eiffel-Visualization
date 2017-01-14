@@ -102,9 +102,12 @@ For example {data.author.name}.
 It also exist some special functions {date> which can be used like this {date>meta.time} and will instead of showing a timestamp show the date and time in the format YYYY-MM-DD HH:MM:SS
 
 ###### Special Functions
+
+Table containing implemented functions that can be used in the text field.
+
  | Function | Explanation |
- |----|----|
- | {date> | Converts timestamp to YYYY-MM-DD HH:MM:SS |
+ |----------|-------------|
+ | `{date>` | Converts timestamp to `YYYY-MM-DD HH:MM:SS` |
 
 ##### Shape
 The data structure also needs to contain a key "shape"
