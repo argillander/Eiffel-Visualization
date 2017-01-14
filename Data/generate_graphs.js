@@ -194,13 +194,18 @@ MongoClient.connect(mongoDBUrl, function (err, db) {
             return;
         }
         let decorate = decorateNode(startNode);
+        let key = startNode.meta.type;
+        let ident = getIdentifierValue(startNode);
+        if (ident!=undefined){
+            key = key +"_"+ ident
+        }
         g.nodes[startNode.meta.id]= {
             label: decorate[0],
             style: decorate[1],
             shape: decorate[2],
             time: new Date(startNode.meta.time),
             type: startNode.meta.type,
-            identifier: getIdentifierValue(startNode),
+            identifier: key,
             value: getDataValue(startNode)
         };
 
@@ -301,6 +306,10 @@ MongoClient.connect(mongoDBUrl, function (err, db) {
                 tmp['end_time'] = endTime;
                 tmp['node_count'] = count;
                 tmp['edge_count'] = tmp["edges"].length;
+                for (let l=0; l<tmp["edges"].length; l++){
+                    tmp["edges"][l]["from_identifier"] = tmp['nodes'][tmp["edges"][l]['from']]["identifier"];
+                    tmp["edges"][l]["to_identifier"] = tmp['nodes'][tmp["edges"][l]['to']]["identifier"];
+                }
 
                 to.insert(tmp, function(err, result) {
                     if(err != null){

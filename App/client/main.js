@@ -90,7 +90,7 @@ Router.route('/agg', function () {
                 let timeLineStart = properties.start.getTime();
                 let timeLineEnd = properties.end.getTime();
                 Router.go("/agg?start=" + timeLineStart + "&end=" + timeLineEnd, {}, {notify: false});
-                Meteor.call('collect_data', timeLineStart, timeLineEnd, function(err,response) {
+                Meteor.call('collect_data', timeLineStart, timeLineEnd, 5000, 0, function(err,response) {
                     if(err) {
                         console.log('serverDataResponse', "Error:" + err.reason);
                         return;
@@ -101,7 +101,8 @@ Router.route('/agg', function () {
                 var tmp = Graphs['data'].find({}).fetch();
 
                 nr_of_results.text(tmp.length);
-                AggregateGraphs.makeGraph(tmp)
+                let graph = AggregateGraphs.makeGraph(tmp);
+                AggregateGraphs.drawGraphs(graph, $gc, 'Aggregated');
 
             });
             Tracker.autorun(() => {
@@ -111,7 +112,8 @@ Router.route('/agg', function () {
                     $ag.empty();
                     let tmp = Graphs['data'].find({}).fetch();
                     nr_of_results.text(tmp.length);
-                    AggregateGraphs.makeGraph(tmp)
+                    let graph = AggregateGraphs.makeGraph(tmp);
+                    AggregateGraphs.drawGraphs(graph, $ag, 'Aggregated');
                 }
             });
         });
@@ -181,7 +183,7 @@ Router.route('/graph', function () {
                 let timeLineStart = properties.start.getTime();
                 let timeLineEnd = properties.end.getTime();
                 Router.go("/graph?start=" + timeLineStart + "&end=" + timeLineEnd, {}, {notify: false});
-                Meteor.call('collect_data', timeLineStart, timeLineEnd, function(err,response) {
+                Meteor.call('collect_data', timeLineStart, timeLineEnd, 20, 0, function(err,response) {
                     if(err) {
                         console.log('serverDataResponse', "Error:" + err.reason);
                         return;

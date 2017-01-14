@@ -11,9 +11,9 @@ Meteor.startup(() => {
         return Graphs['data'].find({userId: this.userId});
     });
     Meteor.methods({
-        collect_data: function (from, to) {
+        collect_data: function (from, to, limit, skip) {
             Graphs['data'].remove({userId: this.userId});
-            var tmp = Graphs['example3'].find({'start_time': {$gte: new Date(from), $lte: new Date(to)}}, {skip: 0, limit: 20}).fetch();
+            var tmp = Graphs['example3'].find({'start_time': {$gte: new Date(from), $lte: new Date(to)}}, {skip: skip, limit: limit}).fetch();
             for (var i = 0; i < tmp.length; i++) {
                 tmp[i]['userId'] = this.userId;
                 Graphs['data'].insert(tmp[i]);
