@@ -88,14 +88,11 @@ class AggregateGraphs {
         }
         return g;
     }
-    static drawGraphs(myGraph, container, label) {
+    static drawGraphs(myGraph, container) {
         let dagD3Draw = require('dagre-d3');
 
         // Renderer is used to draw and show final graph to user
         let renderer = new dagD3Draw.render();
-
-        // Append the title
-        container.append('<h3>' + label + '</h3>');
 
         container.append('<svg id="graph" width="80%" height="100vh"> <g> </svg>');
 
