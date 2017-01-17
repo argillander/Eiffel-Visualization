@@ -1,5 +1,6 @@
 import Graphs from '../lib/collections';
 import IndividualGraphs from "./IndividualGraphs";
+import IndividualGraphsVis from "./IndividualGraphsVis";
 import AggregateGraphs from "./AggregateGraphs";
 import filter from "./filter";
 
@@ -21,6 +22,18 @@ Router.route('/', function () {
             return Graphs['data'].find({});
         }
     });
+});
+
+Router.route('/vis', function () {
+    let queryStringParams = this.params.query;
+    this.render('Graph', {});
+    Template.Graph.rendered=function() { // Run this code when the elements are created
+        $(document).ready(function () {
+            filter("Individual Instances", queryStringParams, "_vis", 20, "/vis", Graphs['data'], handle, function (data, $container) {
+                IndividualGraphsVis.drawGraphs(data, $container);
+            })
+        });
+    }
 });
 
 Router.route('/agg', function () {

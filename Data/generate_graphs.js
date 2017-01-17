@@ -294,8 +294,9 @@ MongoClient.connect(mongoDBUrl, function (err, db) {
             makeGraphRecursive(startNode, tmp, preventCycles, function () {
                 let count = 0;
                 let endTime = new Date(0);
-                for (var k in tmp['nodes']) {
+                for (let k in tmp['nodes']) {
                     if (tmp['nodes'].hasOwnProperty(k)) {
+                        tmp['nodes'][k]['id'] = k;
                         count++;
                         if (tmp['nodes'][k]['time'].getTime()>endTime.getTime()){
                             endTime = tmp['nodes'][k]['time'];
