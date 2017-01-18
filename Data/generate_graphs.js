@@ -162,6 +162,37 @@ function getIdentifierValue(node) {
     }
     return undefined;
 }
+
+function convertStructureToJit(data) {
+    let newStructure = [];
+    for (let k in data['nodes']) {
+        if (data['nodes'].hasOwnProperty(k)) {
+            let tmp = {
+                "data": {
+                    // "$color": "#83548B",
+                    // "$type": "circle",
+                    // "$dim": 11
+                },
+                "id": k,
+                "name": data['nodes'][k]['label'],
+                "adjacencies": []
+            };
+            for (let l=0; l<data["edges"].length; l++){
+                if(data["edges"][l]['from']==k){
+                    tmp['adjacencies'].push({
+                        "nodeTo": data["edges"][l]['to'],
+                        "nodeFrom": k,
+                        "data": {
+                            // "$color": "#557EAA"
+                        }
+                    });
+                }
+            }
+            newStructure.push(tmp);
+        }
+    }
+    return {'start_time': data['start_time'], 'data': newStructure};
+}
 var MongoClient = require('mongodb').MongoClient;
 
 MongoClient.connect(mongoDBUrl, function (err, db) {
@@ -294,8 +325,9 @@ MongoClient.connect(mongoDBUrl, function (err, db) {
             makeGraphRecursive(startNode, tmp, preventCycles, function () {
                 let count = 0;
                 let endTime = new Date(0);
-                for (var k in tmp['nodes']) {
+                for (let k in tmp['nodes']) {
                     if (tmp['nodes'].hasOwnProperty(k)) {
+                        tmp['nodes'][k]['id'] = k;
                         count++;
                         if (tmp['nodes'][k]['time'].getTime()>endTime.getTime()){
                             endTime = tmp['nodes'][k]['time'];
@@ -310,7 +342,7 @@ MongoClient.connect(mongoDBUrl, function (err, db) {
                     tmp["edges"][l]["from_identifier"] = tmp['nodes'][tmp["edges"][l]['from']]["identifier"];
                     tmp["edges"][l]["to_identifier"] = tmp['nodes'][tmp["edges"][l]['to']]["identifier"];
                 }
-
+                tmp = convertStructureToJit(tmp);
                 to.insert(tmp, function(err, result) {
                     if(err != null){
                         console.log(err);
