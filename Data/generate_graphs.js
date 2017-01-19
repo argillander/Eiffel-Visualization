@@ -162,10 +162,31 @@ function getIdentifierValue(node) {
     }
     return undefined;
 }
+function convertToCycoscape(data) {
+    let newStructure = {nodes: [], edges: []};
+    for (let k in data['nodes']) {
+        if (data['nodes'].hasOwnProperty(k)) {
+            let tmp = {"data": {"id": k, "label": data['nodes'][k]['label']}};
+            newStructure['nodes'].push(tmp);
+        }
+    }
+    for (let l=0; l<data["edges"].length; l++){
+        newStructure["edges"].push({
+            "data": {
+                id: data["edges"][l]['from']+"_"+data["edges"][l]['to'],
+                weight: 1,
+                source: data["edges"][l]['from'],
+                target: data["edges"][l]['to']
+            }
+        });
+    }
+    return {'start_time': data['start_time'], 'data': newStructure, 'root': data["_id"]};
+}
+
 var MongoClient = require('mongodb').MongoClient;
 
 MongoClient.connect(mongoDBUrl, function (err, db) {
-
+    db.collection('data').drop();
 
     function decorateNode(data) {
         let s = [];
@@ -310,7 +331,7 @@ MongoClient.connect(mongoDBUrl, function (err, db) {
                     tmp["edges"][l]["from_identifier"] = tmp['nodes'][tmp["edges"][l]['from']]["identifier"];
                     tmp["edges"][l]["to_identifier"] = tmp['nodes'][tmp["edges"][l]['to']]["identifier"];
                 }
-
+                tmp = convertToCycoscape(tmp);
                 to.insert(tmp, function(err, result) {
                     if(err != null){
                         console.log(err);

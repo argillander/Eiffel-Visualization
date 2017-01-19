@@ -1,5 +1,6 @@
 import Graphs from '../lib/collections';
 import IndividualGraphs from "./IndividualGraphs";
+import IndividualGraphsCytoscape from "./IndividualGraphsCytoscape";
 import AggregateGraphs from "./AggregateGraphs";
 import filter from "./filter";
 
@@ -49,6 +50,18 @@ Router.route('/graph', function () {
                 // TODO: Add check if still same data and then don't update
                 let graph = IndividualGraphs.makeGraph(data);
                 IndividualGraphs.drawGraphs(graph, $container); // draw the graphs on canvas
+            })
+        });
+    }
+
+});
+Router.route('/cytoscape', function () {
+    let queryStringParams = this.params.query;
+    this.render('Graph', {});
+    Template.Graph.rendered=function() { // Run this code when the elements are created
+        $(document).ready(function () {
+            filter("Individual Instances", queryStringParams, "_cytoscape", 20, "/cytoscape", Graphs['data'], handle, function (data, $container) {
+                IndividualGraphsCytoscape.drawGraphs(data, $container); // draw the graphs on canvas
             })
         });
     }
