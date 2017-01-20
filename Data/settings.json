@@ -1,15 +1,17 @@
 {
+  "startEvent": "EiffelSourceChangeCreatedEvent",
+  "disallowedLinks": ["PREVIOUS_VERSION"],
   "events":{
     "default": {
       "text": "{meta.type}",
-      "shape": "circle",
+      "shape": {"shape": "ellipse", "width": 300, "height": 300},
       "color":{
         "default":  "#d0d0d0"
       }
     },
     "EiffelSourceChangeCreatedEvent":{
       "text": "Changes Created\n{meta.version}\n{date>meta.time}\n{data.author.name}\n{data.author.group}",
-      "shape": "circle",
+      "shape": {"shape": "ellipse", "width": 300, "height": 300},
       "color":{
         "default":  "#d0d0d0"
       },
@@ -17,7 +19,7 @@
     },
     "EiffelSourceChangeSubmittedEvent": {
       "text": "Changes Submitted\n{meta.version}\n{date>meta.time}\n{data.submitter.name}\n{data.submitter.group}",
-      "shape": "circle",
+      "shape": {"shape": "ellipse", "width": 300, "height": 300},
       "color":{
         "default":  "#d0d0d0"
       },
@@ -25,7 +27,7 @@
     },
     "EiffelArtifactCreatedEvent": {
       "text": "Artifact Created\n{meta.version}\n{date>meta.time}\n{listDict>data.customData[name]}",
-      "shape": "circle",
+      "shape": {"shape": "ellipse", "width": 300, "height": 300},
       "color":{
         "default":  "#FFFF00"
       },
@@ -33,7 +35,7 @@
     },
     "EiffelArtifactPublishedEvent": {
       "text": "Artifact Published\n{meta.version}\n{date>meta.time}\n{listDict>data.customData[name]}",
-      "shape": "circle",
+      "shape": {"shape": "ellipse", "width": 300, "height": 300},
       "color":{
         "default":  "#d0d0d0"
       },
@@ -41,7 +43,7 @@
     },
     "EiffelTestSuiteStartedEvent": {
       "text": "Test Suite Started\n{meta.version}\n{date>meta.time}\n{data.name}",
-      "shape": "circle",
+      "shape": {"shape": "ellipse", "width": 300, "height": 300},
       "color":{
         "default":  "#d0d0d0"
       },
@@ -49,7 +51,7 @@
     },
     "EiffelTestCaseStartedEvent": {
       "text": "Test Case Started\n{meta.version}\n{date>meta.time}\n{listDict>data.customData[name]}",
-      "shape": "circle",
+      "shape": {"shape": "ellipse", "width": 300, "height": 300},
       "color":{
         "default":  "#d0d0d0"
       },
@@ -57,7 +59,7 @@
     },
     "EiffelTestSuiteFinishedEvent": {
       "text": "Test Suite Finished\n{meta.version}\n{date>meta.time}\n{data.outcome.verdict}",
-      "shape": "circle",
+      "shape": {"shape": "ellipse", "width": 300, "height": 300},
       "color":{
         "default":  "#FFFF00",
         "path": "{data.outcome.verdict}",
@@ -71,7 +73,7 @@
     },
     "EiffelTestCaseFinishedEvent": {
       "text": "Test Case Finished\n{meta.version}\n{date>meta.time}\n{data.outcome.verdict}",
-      "shape": "circle",
+      "shape": {"shape": "ellipse", "width": 300, "height": 300},
       "color":{
         "default":  "#FFFF00",
         "path": "{data.outcome.verdict}",
@@ -85,7 +87,7 @@
     },
     "EiffelConfidenceLevelModifiedEvent": {
       "text": "Confidence Level\n{meta.version}\n{date>meta.time}\n{data.name}\n{data.value}",
-      "shape": "circle",
+      "shape": {"shape": "ellipse", "width": 300, "height": 300},
       "color":{
         "default":  "#FFFF00",
         "path": "{data.value}",
@@ -99,7 +101,7 @@
     },
     "EiffelActivityFinishedEvent": {
       "text": "Activity Finished\n{meta.version}\n{date>meta.time}\n{listDict>data.customData[name]}\n{data.outcome.conclusion}",
-      "shape": "circle",
+      "shape": {"shape": "ellipse", "width": 300, "height": 300},
       "color":{
         "default":  "#FFFF00",
         "path": "{data.outcome.conclusion}",
@@ -113,7 +115,7 @@
     },
     "EiffelActivityStartedEvent": {
       "text": "Activity started\n{meta.version}\n{date>meta.time}\n{listDict>data.customData[name]}",
-      "shape": "circle",
+      "shape": {"shape": "ellipse", "width": 300, "height": 300},
       "color":{
         "default":  "#FFFF00"
       },
@@ -121,7 +123,7 @@
     },
     "EiffelActivityTriggeredEvent": {
       "text": "Activity Triggered\n{meta.version}\n{date>meta.time}\n{listDict>data.customData[name]}",
-      "shape": "circle",
+      "shape": {"shape": "ellipse", "width": 300, "height": 300},
       "color":{
         "default":  "#FFFF00"
       },
@@ -129,7 +131,7 @@
     },
     "EiffelCompositionDefinedEvent": {
       "text": "Composition Defined\n{meta.version}\n{date>meta.time}\n{listDict>data.customData[name]}",
-      "shape": "circle",
+      "shape": {"shape": "ellipse", "width": 300, "height": 300},
       "color":{
         "default":  "#d0d0d0"
       },

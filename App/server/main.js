@@ -1,7 +1,7 @@
 import { Meteor } from 'meteor/meteor';
 import Graphs from '../lib/collections';
 
-Graphs['example3'] = new Mongo.Collection('example3');
+Graphs['graph_data'] = new Mongo.Collection('graph_data');
 Graphs['clean_list'] = new Mongo.Collection('clean_list');
 
 Meteor.startup(() => {
@@ -19,7 +19,7 @@ Meteor.startup(() => {
             Graphs['data'].remove(search1);
             search1['start_time'] = {$lte: new Date(from)};
             Graphs['data'].remove(search1);
-            let tmp = Graphs['example3'].find({'start_time': {$gte: new Date(from), $lte: new Date(to)}}, {skip: skip, limit: limit}).fetch();
+            let tmp = Graphs['graph_data'].find({'start_time': {$gte: new Date(from), $lte: new Date(to)}}, {skip: skip, limit: limit}).fetch();
             for (let i = 0; i < tmp.length; i++) {
                 tmp[i]['userId'] = this.userId;
                 tmp[i]["ref"] = ref;
@@ -35,7 +35,7 @@ Meteor.startup(() => {
                     }
                 }
             }
-            return Graphs['example3'].find({'start_time': {$gte: new Date(from), $lte: new Date(to)}}).count();
+            return Graphs['graph_data'].find({'start_time': {$gte: new Date(from), $lte: new Date(to)}}).count();
         }
     });
 });
