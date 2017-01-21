@@ -2,7 +2,8 @@
  * Created by jonathan on 2017-01-14.
  */
 
-var dagD3Draw = require('dagre-d3'); // Library for drawing graph on canvas
+var cytoscape = require('cytoscape');
+
 function setColor(color, total) {
     let c = "#";
     for(let i = 0; i<3; i++) {
@@ -16,101 +17,107 @@ function setColor(color, total) {
         let sub = v.toString(16).toUpperCase();
         c += ('0'+sub).slice(-2);
     }
-    return "fill: " + c;
+    return c;
 }
+
 class AggregateGraphs {
-    static makeGraph(gd) {
-        let events = {};
-        let connections = {};
-        for (let i = 0; i < gd.length; i++) {
-            for (let k in gd[i]['nodes']) {
-                if (gd[i]['nodes'].hasOwnProperty(k)) {
-                    let key = gd[i]['nodes'][k]['identifier'];
-                    if (!events.hasOwnProperty(key)){
-                        events[key] = {"count": 1, "values": {}, "default_color": gd[i]['nodes'][k]['style'], "color": {}};
-                        if (gd[i]['nodes'][k].value != undefined){
-                            events[key]["values"][gd[i]['nodes'][k].value] = 1;
-                            events[key]["color"][gd[i]['nodes'][k].value] = gd[i]['nodes'][k]['style'];
-                        }
 
-                    } else {
-                        events[key]['count'] += 1;
-                        if (gd[i]['nodes'][k].value != undefined){
-                            if (events[key]["values"][gd[i]['nodes'][k].value] == undefined){
-                                events[key]["values"][gd[i]['nodes'][k].value] = 1;
-                                events[key]["color"][gd[i]['nodes'][k].value] = gd[i]['nodes'][k]['style'];
-                            } else {
-                                events[key]["values"][gd[i]['nodes'][k].value] += 1;
-                            }
-                        }
+    static drawGraphs(data, agg_positions, container) {
+
+        if (agg_positions.length!=1){
+            // wait for positions to be received.
+            return;
+        }
+        let tmp = agg_positions[0];
+        container.append("<div id='cy' style='height: 50vh; width: 100vw;'></div>");
+        let dict = {};
+        for(let i=0; i<tmp['nodes'].length; i++){
+            dict[tmp['nodes'][i]['data']['id']] = i;
+            tmp['nodes'][i]['data']['count'] = {'default': {"color": tmp['nodes'][i]['data']['color']['default'], "nr": 0}, '_total': 0};
+            if(tmp['nodes'][i]['data']['color']['values'] !== undefined){
+                for (let k in tmp['nodes'][i]['data']['color']['values']){
+                    if(tmp['nodes'][i]['data']['color']['values'].hasOwnProperty(k)){
+                        tmp['nodes'][i]['data']['count'][k] = {"color": tmp['nodes'][i]['data']['color']['values'][k], "nr": 0};
+
                     }
                 }
             }
-            for (let j = 0; j < gd[i]['edges'].length; j++) {
-                let key = gd[i]['edges'][j]["from_identifier"] + "-" + gd[i]['edges'][j]["to_identifier"];
-                if (!connections.hasOwnProperty(key)) {
-                    connections[key] = {count: 1, from: gd[i]['edges'][j]["from_identifier"], to: gd[i]['edges'][j]["to_identifier"]}
-                } else {
-                    connections[key]['count'] += 1;
+        }
+
+        for(let i=0; i<data.length; i++){
+            for(let j=0; j<data[i]['nodes'].length; j++) {
+                let k = "default";
+                if ([undefined, null, ""].indexOf(data[i]['nodes'][j]['data']['value'])<0) {
+                    k = data[i]['nodes'][j]['data']['value'];
                 }
+                tmp['nodes'][dict[data[i]['nodes'][j]['data']['identifier']]]['data']['count'][k]['nr'] += 1;
+                tmp['nodes'][dict[data[i]['nodes'][j]['data']['identifier']]]['data']['count']['_total'] += 1;
             }
         }
-        g = new dagD3Draw.graphlib.Graph().setGraph({});
-        for (let k in events) {
-            if (events.hasOwnProperty(k)) {
-                let l = "";
-                let total = 0;
-                let colors = {};
-                let use_default = true;
-                let default_color = events[k]['default_color'];
-                for (let v in events[k]['values']) {
-                    use_default = false;
-                    if (events[k]['values'].hasOwnProperty(v)) {
-                        l = l + v + ": " + events[k]['values'][v] + "\n";
-                        total += events[k]['values'][v];
-                        if (events[k]['color'][v]!=undefined){
-                            colors[v] = {"color": events[k]['color'][v].split("fill: ")[1], "nr": events[k]['values'][v]};
-                        }
+
+        for(let i=0; i<tmp['nodes'].length; i++){
+            let total = tmp['nodes'][i]['data']['count']['_total'];
+            delete tmp['nodes'][i]['data']['count']['_total'];
+            tmp['nodes'][i]['data']['bgcolor'] = setColor(tmp['nodes'][i]['data']['count'], total);
+
+            tmp['nodes'][i]['data']['label'] += "\nTotal: " + total;
+            for (let k in tmp['nodes'][i]['data']['count']){
+                if(tmp['nodes'][i]['data']['count'].hasOwnProperty(k)){
+                    if(k=="default"){
+                        continue;
                     }
+                    tmp['nodes'][i]['data']['label'] += "\n"+k+ ": " + tmp['nodes'][i]['data']['count'][k]["nr"];
                 }
-                let color;
-                if (use_default){
-                    color = default_color;
-                } else {
-                    color = setColor(colors, total);
-                }
-
-                g.setNode(k, {label: k + "\n" + events[k]["count"]+"\n"+l, style: color, shape: "circle"});
             }
         }
-        for (let k in connections) {
-            g.setEdge(connections[k]['from'], connections[k]['to'], {label: connections[k]["count"]});
-        }
-        return g;
+
+        let cy = cytoscape({
+            container: document.getElementById('cy'),
+            boxSelectionEnabled: false,
+            autounselectify: true,
+            style: cytoscape.stylesheet()
+                .selector('node')
+                .css({
+                    'shape': 'data(shape)',
+                    'height': 'data(shapeHeight)',
+                    'width': 'data(shapeWidth)',
+                    'border-color': '#000',
+                    'border-width': 3,
+                    'border-opacity': 0.5,
+                    'text-valign': 'center',
+                    'text-halign': 'center',
+                    'content': 'data(label)',
+                    'color': '#000',
+                    'font-size': 20,
+                    'background-color': 'data(bgcolor)',
+                    'min-zoomed-font-size': 3,
+                    'text-wrap': "wrap"
+                })
+                .selector('edge')
+                .css({
+                    'target-arrow-shape': 'triangle',
+                    'width': 2,
+                    'line-color': '#111',
+                    'target-arrow-color': '#111',
+                    'curve-style': 'bezier'
+                })
+                .selector('.highlighted')
+                .css({
+                    'background-color': '#61bffc',
+                    'line-color': '#61bffc',
+                    'target-arrow-color': '#61bffc',
+                    'transition-property': 'background-color, line-color, target-arrow-color',
+                    'transition-duration': '0.5s'
+                }),
+
+            elements: {
+                nodes: agg_positions[0]['nodes'],
+                edges: agg_positions[0]['edges']
+            },
+
+            layout: {name: 'preset', fit: true}
+        });
     }
-    static drawGraphs(myGraph, container) {
-        let dagD3Draw = require('dagre-d3');
-
-        // Renderer is used to draw and show final graph to user
-        let renderer = new dagD3Draw.render();
-
-        container.append('<svg id="graph" width="80%" height="100vh"> <g> </svg>');
-
-        let svg = d3.select('#graph');
-        let inner = svg.select("g");
-
-        myGraph.graph().rankdir = "LR"; // Horizontal or vertical drawing property of graph
-        myGraph.graph().ranksep = 30; // Horizontal size of the diplayed graph
-        myGraph.graph().nodesep = 30; // Nodes' inter distances vertical
-
-        renderer(inner, myGraph);
-        try {
-            svgPanZoom('#graph');
-        } catch (e){}
-
-
-    }
-
 }
 
 export default AggregateGraphs;

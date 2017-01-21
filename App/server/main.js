@@ -9,8 +9,10 @@ Meteor.startup(() => {
     Graphs['data'].remove(); // TODO: Remove this when done changing th structure.
     cleanUp();  // Remove old sessions and data from those.
     Meteor.publish('data', function() {
-        console.log(this.userId);
         return Graphs['data'].find({userId: this.userId});
+    });
+    Meteor.publish('graph_data_agg', function() {
+        return Graphs['graph_data_agg'].find({});
     });
     Meteor.methods({
         collect_data: function (from, to, limit, skip, ref) {
@@ -55,10 +57,10 @@ function cleanUp() {
 
 function user_diff (a1, a2) {
     var a = [], diff = [];
-    for (var i = 0; i < a1.length; i++) {
+    for (let i = 0; i < a1.length; i++) {
         a[a1[i]['_id']] = true;
     }
-    for (var i = 0; i < a2.length; i++) {
+    for (let i = 0; i < a2.length; i++) {
         if (a[a2[i]['_id']]) {
             delete a[a2[i]['_id']];
         }

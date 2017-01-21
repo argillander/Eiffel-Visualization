@@ -1,12 +1,11 @@
 import Graphs from '../lib/collections';
 import IndividualGraphs from "./IndividualGraphs";
-import IndividualGraphsCytoscape from "./IndividualGraphsCytoscape";
 import AggregateGraphs from "./AggregateGraphs";
 import filter from "./filter";
 
 
 const handle = Meteor.subscribe('data');
-
+const handle_agg = Meteor.subscribe('graph_data_agg');
 Router.configure({
     layoutTemplate: 'Layout'
 });
@@ -29,13 +28,9 @@ Router.route('/agg', function () {
     this.render('Graph', {});
     Template.Graph.rendered=function() { // Run this code when the elements are created
         $(document).ready(function () {
-            let tmp = undefined;
             filter("Aggregate", queryStringParams, "_agg", 500, "/agg", Graphs['data'], handle, function (data, $container) {
-                // TODO: Add check if still same data and then don't update
-                //tmp = data;
-
-                let graph = AggregateGraphs.makeGraph(data);
-                AggregateGraphs.drawGraphs(graph, $container);
+                let agg = Graphs['graph_data_agg'].find({}).fetch();
+                AggregateGraphs.drawGraphs(data, agg, $container);
             })
         });
     }
@@ -47,21 +42,7 @@ Router.route('/graph', function () {
     Template.Graph.rendered=function() { // Run this code when the elements are created
         $(document).ready(function () {
             filter("Individual Instances", queryStringParams, "_ind", 20, "/graph", Graphs['data'], handle, function (data, $container) {
-                // TODO: Add check if still same data and then don't update
-                let graph = IndividualGraphs.makeGraph(data);
-                IndividualGraphs.drawGraphs(graph, $container); // draw the graphs on canvas
-            })
-        });
-    }
-
-});
-Router.route('/cytoscape', function () {
-    let queryStringParams = this.params.query;
-    this.render('Graph', {});
-    Template.Graph.rendered=function() { // Run this code when the elements are created
-        $(document).ready(function () {
-            filter("Individual Instances", queryStringParams, "_cytoscape", 20, "/cytoscape", Graphs['data'], handle, function (data, $container) {
-                IndividualGraphsCytoscape.drawGraphs(data, $container); // draw the graphs on canvas
+                IndividualGraphs.drawGraphs(data, $container); // draw the graphs on canvas
             })
         });
     }

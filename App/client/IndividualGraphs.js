@@ -1,51 +1,57 @@
-
-var dagD3Draw = require('dagre-d3'); // Library for drawing graph on canvas
+var cytoscape = require('cytoscape');
 
 class MakeGraphs {
-    static makeGraph(gd) {
+    static drawGraphs(data, container) {
+        for (let i = 0; i < data.length; i++) {
+            // height: 50vh; width: 100vw;
+            container.append("<div id='cy_"+i+"' style='height: 50vh; width: 100vw;'></div>");
 
-        let g = [];
+            let cy = cytoscape({
+                container: document.getElementById('cy_'+i),
+                boxSelectionEnabled: false,
+                autounselectify: true,
+                style: cytoscape.stylesheet()
+                    .selector('node')
+                    .css({
+                        'shape': 'data(shape)',
+                        'height': 'data(shapeHeight)',
+                        'width': 'data(shapeWidth)',
+                        'border-color': '#000',
+                        'border-width': 3,
+                        'border-opacity': 0.5,
+                        'text-valign': 'center',
+                        'text-halign': 'center',
+                        'content': 'data(label)',
+                        'color': '#000',
+                        'font-size': 20,
+                        'background-color': 'data(color)',
+                        'min-zoomed-font-size': 3,
+                        'text-wrap': "wrap"
+                    })
+                    .selector('edge')
+                    .css({
+                        'target-arrow-shape': 'triangle',
+                        'width': 2,
+                        'line-color': '#111',
+                        'target-arrow-color': '#111',
+                        'curve-style': 'bezier'
+                    })
+                    .selector('.highlighted')
+                    .css({
+                        'background-color': '#61bffc',
+                        'line-color': '#61bffc',
+                        'target-arrow-color': '#61bffc',
+                        'transition-property': 'background-color, line-color, target-arrow-color',
+                        'transition-duration': '0.5s'
+                    }),
 
-        for (let i = 0; i < gd.length; i++) {
-            g[i] = new dagD3Draw.graphlib.Graph().setGraph({});
-            for (var k in gd[i]['nodes']) {
-                if (gd[i]['nodes'].hasOwnProperty(k)) {
-                    g[i].setNode(
-                        k,
-                        {label: gd[i]['nodes'][k]['label'], style: gd[i]['nodes'][k]['style'], shape: gd[i]['nodes'][k]['shape']}
-                    );
-                }
+                elements: {
+                    nodes: data[i]['nodes'],
+                    edges: data[i]['edges']
+                },
 
-            }
-            for (let j = 0; j < gd[i]['edges'].length; j++) {
-                g[i].setEdge(gd[i]['edges'][j]['from'], gd[i]['edges'][j]['to'], {});
-            }
-        }
-        return g;
-    }
-    static drawGraphs(myGraph, container) {
-
-        let dagD3Draw = require('dagre-d3');
-
-        // Renderer is used to draw and show final graph to user
-        let renderer = new dagD3Draw.render();
-
-        for (let i = 0; i < myGraph.length; i++) {
-
-            // Append graph to the div
-            // Height of each graph can also be set from here
-            container.append('<svg id="graph' + i + '" width="100%" height="50vh"> <g> </svg>');
-
-            let svg = d3.select('#graph' + i);
-            let inner = svg.select("g");
-
-            myGraph[i].graph().rankdir = "LR"; // Horizontal or vertical drawing property of graph
-            myGraph[i].graph().ranksep = 30; // Horizontal size of the diplayed graph
-            myGraph[i].graph().nodesep = 30; // Nodes' inter distances vertical
-
-            // Draws the final aggregated graph
-            renderer(inner, myGraph[i]);
-            svgPanZoom('#graph' + i);
+                layout: {name: 'preset', fit: true},
+            });
         }
     }
 }

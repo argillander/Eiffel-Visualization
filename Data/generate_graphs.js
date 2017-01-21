@@ -23,6 +23,7 @@ let startEvent = "EiffelSourceChangeCreatedEvent";
 let disallowedLinks = ['PREVIOUS_VERSION'];
 let from_collection = "";
 let to_collection = "graph_data";
+let agg_collection = "graph_data_agg";
 let settings_file = "settings.json";
 
 
@@ -76,6 +77,7 @@ function makeGraphRecursive(startNode, g, preventCycles, callback) {
         "data": {
             id: startNode.meta.id,
             label: decorate['label'],
+            name: decorate['name'],
             color: decorate['color'],
             shape: decorate['shape'],
             shapeHeight: decorate['shapeHeight'],
@@ -103,7 +105,6 @@ function makeGraphRecursive(startNode, g, preventCycles, callback) {
         g.edges.push({
             "data": {
                 id: startNode.meta.id+"_"+startNode.nextActivities[j].ref.meta.id,
-                //weight: 1,
                 source: startNode.meta.id,
                 target: startNode.nextActivities[j].ref.meta.id
             }
@@ -223,6 +224,44 @@ function positionNodes(graph, layout) {
     return graph;
 }
 
+function generateAggregated(gd) {
+    let events = {};
+    let connections = {};
+    let elemtents = {'edges': [], 'nodes': []};
+    if (gd.length>0 && gd[0]['nodes'].length>0){
+        elemtents['root'] = gd[0]['nodes'][0]['data']['identifier'];
+    }
+    for (let i = 0; i < gd.length; i++) {
+        for (let j = 0; j < gd[i]['nodes'].length; j++) {
+            let key = gd[i]['nodes'][j]['data']['identifier'];
+            if (!events.hasOwnProperty(key)){
+                events[key] = true;
+                let id = gd[i]['nodes'][j]['data']['type'];
+                if (settings["events"][id]==undefined){
+                    id = "default";
+                }
+
+                elemtents['nodes'].push({"data": {
+                    "id": key,
+                    "label": gd[i]['nodes'][j]['data']['name'],
+                    "color": settings["events"][id]["color"],
+                    "shape": settings["events"][id]["shape"]["shape"],
+                    "shapeHeight": settings["events"][id]["shape"]["height"],
+                    "shapeWidth": settings["events"][id]["shape"]["width"]
+                }});
+            }
+        }
+        for (let j = 0; j < gd[i]['edges'].length; j++) {
+            let key = gd[i]['edges'][j]['data']["from_identifier"] + "-" + gd[i]['edges'][j]['data']["to_identifier"];
+            if (!connections.hasOwnProperty(key)) {
+                connections[key] = true;
+                elemtents['edges'].push({'data': {id: key, source: gd[i]['edges'][j]['data']["from_identifier"], target: gd[i]['edges'][j]['data']["to_identifier"]}});
+            }
+        }
+    }
+    return positionNodes(elemtents, settings['layout']);
+}
+
 MongoClient.connect(mongoDBUrl, function (err, db) {
     try {
         db.collection('data').drop();
@@ -236,7 +275,10 @@ MongoClient.connect(mongoDBUrl, function (err, db) {
 
     let from = db.collection(from_collection);
     let to = db.collection(to_collection);
+    let agg = db.collection(agg_collection);
     to.drop();
+    agg.drop();
+
     let ts = + new Date();
     getData({}, from, function (startNodes) {
         for (let i = 0; i < startNodes.length; i++) {
@@ -264,22 +306,35 @@ MongoClient.connect(mongoDBUrl, function (err, db) {
                 tmp['node_count'] = count;
                 tmp['edge_count'] = tmp["edges"].length;
                 for (let l=0; l<tmp["edges"].length; l++){
-                    tmp["edges"][l]['data']["from_identifier"] = identifiers[tmp["edges"][l]['from']];
-                    tmp["edges"][l]['data']["to_identifier"] = identifiers[tmp["edges"][l]['to']];
+                    tmp["edges"][l]['data']["from_identifier"] = identifiers[tmp["edges"][l]['data']['source']];
+                    tmp["edges"][l]['data']["to_identifier"] = identifiers[tmp["edges"][l]['data']['target']];
                 }
 
                 if(ts+500 < + new Date()){
-                    let ts = + new Date();
+                    ts = + new Date();
                     process.stdout.write("" + ("      " + Math.floor((i/startNodes.length)*1000)/10.0).slice(-6) + "%\r");
                 }
-                tmp = positionNodes(tmp, "dagre");
-                to.insert(tmp, function(err, result) {
+                tmp = positionNodes(tmp, settings['layout']);
+                to.insertOne(tmp, function(err, result) {
                     if(err != null){
                         console.log(err);
                     }
                     if(i+1 == startNodes.length){
+                        console.log(("      100").slice(-6) + "%");
                         console.log("Generated "+startNodes.length + " graphs");
-                        process.exit()
+                        to.find({}).toArray(
+                            function (err, items) {
+                                let aggregation = generateAggregated(items);
+                                agg.insertOne(aggregation, function(err_agg, res) {
+                                    if(err_agg != null) {
+                                        console.log(err);
+                                    } else {
+                                        console.log("Generated positions for aggregations");
+                                    }
+                                    process.exit();
+                                });
+                            }
+                        );
                     }
                 });
             });

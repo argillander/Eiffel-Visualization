@@ -68,7 +68,7 @@ function getDataValue (node, settings) {
 }
 
 function getIdentifierValue(node, settings) {
-    if (["events"][node.meta.type] != undefined) {
+    if (settings["events"][node.meta.type] != undefined) {
         if (settings["events"][node.meta.type]["identifier"] != undefined) {
             return formatSettingsString(settings["events"][node.meta.type]["identifier"], node)
         }
@@ -84,6 +84,7 @@ function decorateNode(data, settings) {
         key = "default";
     }
     s['label'] = formatSettingsString(settings["events"][key]["text"], data);
+    s['name'] = formatSettingsString(settings["events"][key]["name"], data);
     let color = settings["events"][key]["color"]["default"];
     if (settings["events"][key]["color"]["path"]!=undefined) {
         let value = formatSettingsString(settings["events"][key]["color"]["path"], data);
@@ -100,6 +101,7 @@ function decorateNode(data, settings) {
 }
 
 module.exports = {
+    formatSettingsString: formatSettingsString,
     getDataValue: getDataValue,
     getIdentifierValue: getIdentifierValue,
     decorateNode: decorateNode
