@@ -6,13 +6,17 @@ Graphs['clean_list'] = new Mongo.Collection('clean_list');
 
 Meteor.startup(() => {
     // code to run on server at startup
-    Graphs['data'].remove(); // TODO: Remove this when done changing th structure.
+    Graphs['data'].remove({}); // TODO: Remove this when done changing th structure.
+    Graphs['data']._ensureIndex({ "start_time": 1});
     cleanUp();  // Remove old sessions and data from those.
     Meteor.publish('data', function() {
         return Graphs['data'].find({userId: this.userId});
     });
     Meteor.publish('graph_data_agg', function() {
         return Graphs['graph_data_agg'].find({});
+    });
+    Meteor.publish('start_times', function() {
+        return Graphs['start_times'].find({}, {sort: {'start_time': 1}});
     });
     Meteor.methods({
         collect_data: function (from, to, limit, skip, ref) {
@@ -21,7 +25,8 @@ Meteor.startup(() => {
             Graphs['data'].remove(search1);
             search1['start_time'] = {$lte: new Date(from)};
             Graphs['data'].remove(search1);
-            let tmp = Graphs['graph_data'].find({'start_time': {$gte: new Date(from), $lte: new Date(to)}}, {skip: skip, limit: limit}).fetch();
+            let tmp = Graphs['graph_data'].find({'start_time': {$gte: new Date(from), $lte: new Date(to)}}, {skip: skip, limit: limit, sort: {start_time: -1}}).fetch();
+
             for (let i = 0; i < tmp.length; i++) {
                 tmp[i]['userId'] = this.userId;
                 tmp[i]["ref"] = ref;
@@ -33,9 +38,13 @@ Meteor.startup(() => {
                 }
                 catch (e){
                     if(e.code!=11000){
-                        raise(e);
+                        console.log(e);
                     }
                 }
+            }
+            let res = Graphs['data'].find({"userId": this.userId, "ref": ref, "limit": limit, "skip": skip, 'start_time': {$gte: new Date(from), $lte: new Date(to)}}, {skip: limit, limit: limit, sort: {start_time: -1}}).fetch();
+            for (let j = 0; j < res.length; j++) {
+                Graphs['data'].remove({'_id': res[j]['_id']});
             }
             return Graphs['graph_data'].find({'start_time': {$gte: new Date(from), $lte: new Date(to)}}).count();
         }

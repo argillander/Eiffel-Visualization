@@ -276,9 +276,12 @@ MongoClient.connect(mongoDBUrl, function (err, db) {
     let from = db.collection(from_collection);
     let to = db.collection(to_collection);
     let agg = db.collection(agg_collection);
+    let start_times = db.collection('start_times');
+    start_times.drop();
     to.drop();
     agg.drop();
-
+    to.createIndex( { "start_time": 1 } );
+    start_times.createIndex( { "start_time": 1 } );
     let ts = + new Date();
     getData({}, from, function (startNodes) {
         for (let i = 0; i < startNodes.length; i++) {
@@ -315,6 +318,9 @@ MongoClient.connect(mongoDBUrl, function (err, db) {
                     process.stdout.write("" + ("      " + Math.floor((i/startNodes.length)*1000)/10.0).slice(-6) + "%\r");
                 }
                 tmp = positionNodes(tmp, settings['layout']);
+
+                start_times.insertOne({'_id': tmp['_id'], 'start': tmp['start_time'] }, function(err, result) {
+                });
                 to.insertOne(tmp, function(err, result) {
                     if(err != null){
                         console.log(err);
