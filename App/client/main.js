@@ -1,7 +1,7 @@
 var dagD3Draw = require('dagre-d3'); // Library for drawing graph on canvas
 
 //mongoDB collection name (same as in server)
-Graphs = new Mongo.Collection('example2');
+Graphs = new Mongo.Collection('example4');
 
 var selectedGraphs = [];
 var listTracibleEventIDs = [];

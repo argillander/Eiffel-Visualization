@@ -4,7 +4,7 @@ Meteor.startup(() => {
   // code to run on server at startup
 });
 
-Graphs = new Mongo.Collection('example2');	
+Graphs = new Mongo.Collection('example4');
 
 if (Meteor.isServer) {
 	//This code only runs on the server
