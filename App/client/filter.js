@@ -2,7 +2,7 @@
  * Created by jonathan on 2017-01-16.
  */
 import formatDate from '../lib/date_formatter'
-function filter(name, queryStringParams, ref, limit, url, collection, handle, drawGraph) {
+function filter(name, queryStringParams, ref, limit, url, collection, handle, handle_start_times, start_times, drawGraph) {
     // Time Line
     let $container = $('#container');
     $container.append('<h3>' + name + '</h3>');
@@ -58,6 +58,9 @@ function filter(name, queryStringParams, ref, limit, url, collection, handle, dr
         let tmp = collection.find({'start_time': {$gte: new Date(from), $lte: new Date(to)}, ref: ref, skip: offset, limit: limit}).fetch();
         nr_of_results.text(tmp.length);
         drawGraph(tmp, $graph);
+        // let st = start_times.find({'start': {$gte: new Date(from), $lte: new Date(to)}}, {sort: {'start': 1}}).fetch();
+        // console.log(st);
+
     });
     Tracker.autorun(() => {
         if (handle.ready()) {// When the data is ready to be fetched
@@ -65,6 +68,10 @@ function filter(name, queryStringParams, ref, limit, url, collection, handle, dr
             let tmp = collection.find({'start_time': {$gte: new Date(from), $lte: new Date(to)}, ref: ref, skip: offset, limit: limit}).fetch();
             nr_of_results.text(tmp.length);
             drawGraph(tmp, $graph);
+
+        }
+        if (handle_start_times.ready()) {// When the data is ready to be fetched
+            //timeline.setItems(new vis.DataSet(start_times.fetch()));
         }
     });
 }

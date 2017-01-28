@@ -25,22 +25,16 @@ Or using npm run-script:
 
 
 ## Generate graphs
-Usage: node generate_graphs.js [OPTIONS]... SOURCE DEST
-Parses start nodes from a SOURCE collection to a DESTination collection of a
- specified type.
+Usage: node generate_graphs.js [OPTIONS]... SOURCE
+Parses start nodes from a SOURCE collection.
 
   -m, --mongodb           Mongodb url
-  -t, --type              Event type as start node.
-  -d, --disallowed-links  Disallowed links in structure. Comma separated list
-                          without space ex. -d LINK1,LINK2 
   -h, --help              This help text
   -s, --settings          Settings file
 
 
 By default:
   --mongodb=mongodb://localhost:3001/meteor
-  --type=EiffelSourceChangeCreatedEvent
-  --disallowed-links=PREVIOUS_VERSION
   --settings=settings.json
 
 Read more about the settings file in the next section.
@@ -60,24 +54,26 @@ When generating the graphs you must provide a settings file containing a json el
 Example:
 ```JSON
 {
+  "startEvent": "EiffelSourceChangeCreatedEvent",
+  "disallowedLinks": ["PREVIOUS_VERSION"],
   "events":{
     "default": {
       "text": "{meta.type}",
-      "shape": "circle",
+      "shape": {"shape": "ellipse", "width": 300, "height": 300},
       "color":{
         "default":  "#d0d0d0"
       }
     },
     "EiffelSourceChangeCreatedEvent":{
       "text": "Changes Created\n{meta.version}\n{date>meta.time}\n{data.author.name}\n{data.author.group}",
-      "shape": "circle",
+      "shape": {"shape": "ellipse", "width": 300, "height": 300},
       "color":{
         "default":  "#d0d0d0"
       }
     },
     "EiffelTestCaseFinishedEvent": {
       "text": "Test Case Finished\n{meta.version}\n{date>meta.time}\n{data.outcome.verdict}",
-      "shape": "circle",
+      "shape": {"shape": "ellipse", "width": 300, "height": 300},
       "color":{
         "default":  "#FFFF00",
         "path": "{data.outcome.verdict}",
@@ -93,6 +89,12 @@ Example:
 }
 ```
 
+#### startEvent
+Must be in the structure.
+Specifies the event type the graph starts at
+
+#### disallowedLinks
+Contains a list of link types that shall be skipped when generating tha graph.
 
 #### Events
 The JSON object must contain a "events" key containing an object with keys for each event type that you want to modify the text or appearance of.
@@ -115,14 +117,25 @@ Table containing implemented functions that can be used in the text field.
 
 ##### Shape
 The data structure also needs to contain a key "shape"
-The shape value can be one of the following:
+The shape is an object with 3 parameters that must exist. The "shape" keys value can be one of the following:
 
 | Shape |
 |----|
-| rect |
-| circle |
 | ellipse |
+| rectangle |
+| roundrectangle |
+| triangle |
+| pentagon |
+| hexagon |
+| heptagon |
+| octagon |
+| star |
+| diamond |
+| vee |
+| rhomboid |
 | polygon |
+
+The other 2 keys needed are width and height, which both should be integers.
 
 ##### Color
 
