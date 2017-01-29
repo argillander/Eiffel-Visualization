@@ -1,8 +1,7 @@
 /**
  * Created by jonathan on 2016-12-18.
  */
-var Graphs = {};
-Graphs['data'] = new Mongo.Collection('data');
-Graphs['start_times'] = new Mongo.Collection('start_times');
-Graphs['graph_data_agg'] = new Mongo.Collection('graph_data_agg');
-export default Graphs;
+let data_collection = new Mongo.Collection('data');
+let start_times_collection = new Mongo.Collection('start_times');
+let aggregation_collection = new Mongo.Collection('graph_data_agg');
+export { data_collection, start_times_collection, aggregation_collection };

@@ -1,7 +1,11 @@
 /**
  * Created by jonathan on 2016-12-31.
  */
+"use strict";
 function formatDate(date) {
+    /**
+     * Formats a date to the form "YYYY-MM-DD hh:mm:ss"
+     */
     date = new Date(date);
     let day = date.getDate();
     let month = date.getMonth() + 1;
@@ -28,4 +32,4 @@ function formatDate(date) {
 
     return year + "-" + month + "-" + day + " " + hours + ":" + minutes + ":" + seconds;
 }
-export default formatDate;
+export { formatDate };

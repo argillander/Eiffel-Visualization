@@ -1,31 +1,30 @@
 import { Meteor } from 'meteor/meteor';
-import Graphs from '../lib/collections';
+import { data_collection, start_times_collection, aggregation_collection } from '../lib/collections';
 
-Graphs['graph_data'] = new Mongo.Collection('graph_data');
-Graphs['clean_list'] = new Mongo.Collection('clean_list');
+let graph_data = new Mongo.Collection('graph_data');
 
 Meteor.startup(() => {
     // code to run on server at startup
-    Graphs['data'].remove({}); // TODO: Remove this when done changing th structure.
-    Graphs['data']._ensureIndex({ "start_time": 1});
+    data_collection._ensureIndex({ "start_time": 1});
     cleanUp();  // Remove old sessions and data from those.
     Meteor.publish('data', function() {
-        return Graphs['data'].find({userId: this.userId});
+        return data_collection.find({userId: this.userId});
     });
-    Meteor.publish('graph_data_agg', function() {
-        return Graphs['graph_data_agg'].find({});
+    Meteor.publish('graph_data_aggregation', function() {
+        return aggregation_collection.find({});
     });
     Meteor.publish('start_times', function() {
-        return Graphs['start_times'].find({}, {sort: {'start_time': 1}});
+        return start_times_collection.find({}, {sort: {'start_time': 1}});
     });
     Meteor.methods({
         collect_data: function (from, to, limit, skip, ref) {
-            let search1 = {"userId": this.userId, "ref": ref, "limit": {$ne: limit}, "skip": {$ne: skip}};
+            let search1 = {"userId": this.userId, "ref": ref};
             search1['start_time'] = {$gte: new Date(to)};
-            Graphs['data'].remove(search1);
+            data_collection.remove(search1);
             search1['start_time'] = {$lte: new Date(from)};
-            Graphs['data'].remove(search1);
-            let tmp = Graphs['graph_data'].find({'start_time': {$gte: new Date(from), $lte: new Date(to)}}, {skip: skip, limit: limit, sort: {start_time: -1}}).fetch();
+            data_collection.remove(search1);
+            data_collection.remove({"userId": this.userId, "ref": ref, "limit": {$ne: limit}, "skip": {$ne: skip}});
+            let tmp = graph_data.find({'start_time': {$gte: new Date(from), $lte: new Date(to)}}, {skip: skip, limit: limit, sort: {start_time: -1}}).fetch();
 
             for (let i = 0; i < tmp.length; i++) {
                 tmp[i]['userId'] = this.userId;
@@ -34,7 +33,7 @@ Meteor.startup(() => {
                 tmp[i]["limit"] = limit;
                 tmp[i]["skip"] = skip;
                 try {
-                    Graphs['data'].insert(tmp[i]);
+                    data_collection.insert(tmp[i]);
                 }
                 catch (e){
                     if(e.code!=11000){
@@ -42,11 +41,11 @@ Meteor.startup(() => {
                     }
                 }
             }
-            let res = Graphs['data'].find({"userId": this.userId, "ref": ref, "limit": limit, "skip": skip, 'start_time': {$gte: new Date(from), $lte: new Date(to)}}, {skip: limit, limit: limit, sort: {start_time: -1}}).fetch();
+            let res = data_collection.find({"userId": this.userId, "ref": ref, "limit": limit, "skip": skip, 'start_time': {$gte: new Date(from), $lte: new Date(to)}}, {skip: limit, limit: limit, sort: {start_time: -1}}).fetch();
             for (let j = 0; j < res.length; j++) {
-                Graphs['data'].remove({'_id': res[j]['_id']});
+                data_collection.remove({'_id': res[j]['_id']});
             }
-            return Graphs['graph_data'].find({'start_time': {$gte: new Date(from), $lte: new Date(to)}}).count();
+            return graph_data.find({'start_time': {$gte: new Date(from), $lte: new Date(to)}}).count();
         }
     });
 });
@@ -59,7 +58,7 @@ function cleanUp() {
     let users_left = Meteor.users.find({}, {fields: {'_id':1}}).fetch();
     let diff = user_diff(users, users_left);
     for (let i = 0; i < diff.length; i++) {
-        Graphs['data'].remove({userId: diff[i]});
+        data_collection.remove({userId: diff[i]});
         Meteor.guestUsers.remove({user_id: diff[i]});
     }
 }

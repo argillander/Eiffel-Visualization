@@ -1,8 +1,11 @@
 <template name="Graph">
+
     <h1>Eiffel CI Visulaization for Decision Support!</h1>
+    <a href="/">Home</a>
     <h3>Timeline: Move/Scroll side ways to change date range: To zoom in and zoom out, put cursor on the timeline and then use mouse wheel/drag.</h3>
     <div id="timeline_container">
-        <div id="timeline"></div>
+        <div id="selectable_timeline"></div>
+        <div id="timeline" style="width: 100%; height: 100%"></div>
         <p id="date_range"></p>
     </div>
 
