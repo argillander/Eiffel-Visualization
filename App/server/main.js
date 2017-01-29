@@ -64,7 +64,7 @@ function cleanUp() {
 }
 
 function user_diff (a1, a2) {
-    var a = [], diff = [];
+    let a = [], diff = [];
     for (let i = 0; i < a1.length; i++) {
         a[a1[i]['_id']] = true;
     }
@@ -73,7 +73,7 @@ function user_diff (a1, a2) {
             delete a[a2[i]['_id']];
         }
     }
-    for (var k in a) {
+    for (let k in a) {
         diff.push(k);
     }
     return diff;

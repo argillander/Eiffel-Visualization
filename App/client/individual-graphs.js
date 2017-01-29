@@ -1,4 +1,4 @@
-var cytoscape = require('cytoscape');
+let cytoscape = require('cytoscape');
 
 class MakeGraphs {
     static drawGraphs(data, container) {
@@ -34,7 +34,7 @@ class MakeGraphs {
         // 50vh is half the window height and 90 vw is 90% of the window width
 
         // Generate the graph
-        let cy = cytoscape({
+        cytoscape({
             container: document.getElementById(data['_id']),
             boxSelectionEnabled: false,
             autounselectify: true,
