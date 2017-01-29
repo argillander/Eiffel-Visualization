@@ -4,6 +4,9 @@
 "use strict";
 module.exports = {
     formatDate: function (date) {
+        /**
+         * Formats a date to the form "YYYY-MM-DD hh:mm:ss"
+         */
         date = new Date(date);
         let day = date.getDate();
         let month = date.getMonth() + 1;

@@ -6,6 +6,12 @@ let date = require('./date');
 let formatDate = date.formatDate;
 
 function getValueFromPath (str, data) {
+    /**
+     * Parse the path and return the value or an empty string if undefined.
+     * Input:
+     *   str: Path to parse
+     *   data: The object in which the path shall be applied to.
+     */
     let path = str.split(".");
     let value = data;
     for (let j = 0; j < path.length; j++) {
@@ -21,21 +27,27 @@ function getValueFromPath (str, data) {
     }
     return value;
 }
+
 function formatSettingsString (str, data) {
+    /**
+     * Formats a "SettingsString", see readme file in the Data folder for example and instructions.
+     * Returns a string with data from the structure inserted.
+     */
     let res_str = "";
     let tmp = str.split("{");
     for (let i = 0; i < tmp.length; i++) {
         if (tmp[i].indexOf('}') > -1) {
             let tmp_list = tmp[i].split("}");
+            // Use default function is just the string
             let func = function (str) {
                 return str
             };
-            if (tmp_list[0].indexOf('date>') > -1) {
+            if (tmp_list[0].indexOf('date>') > -1) {  // Use format to date function
                 tmp_list[0] = tmp_list[0].split('date>')[1];
                 func = function (str) {
                     return formatDate(str)
                 };
-            } else if (tmp_list[0].indexOf('listDict>') > -1) {
+            } else if (tmp_list[0].indexOf('listDict>') > -1) {  // Use listDict function, more info in readme.
                 tmp_list[0] = tmp_list[0].split('listDict>')[1];
                 let temp = tmp_list[0].split('[');
                 tmp_list[0] = temp[0];
@@ -59,6 +71,9 @@ function formatSettingsString (str, data) {
 }
 
 function getDataValue (node, settings) {
+    /**
+     * Retrieves the values field defined in the settings object or undefined.
+     */
     if (settings["events"][node.meta.type] != undefined) {
         if (settings["events"][node.meta.type]["value"] != undefined) {
             return formatSettingsString(settings["events"][node.meta.type]["value"], node)
@@ -68,6 +83,9 @@ function getDataValue (node, settings) {
 }
 
 function getIdentifierValue(node, settings) {
+    /**
+     * Retrieves the identifier field defined in the settings object or undefined.
+     */
     if (settings["events"][node.meta.type] != undefined) {
         if (settings["events"][node.meta.type]["identifier"] != undefined) {
             return formatSettingsString(settings["events"][node.meta.type]["identifier"], node)
@@ -77,6 +95,9 @@ function getIdentifierValue(node, settings) {
 }
 
 function decorateNode(data, settings) {
+    /**
+     * Decorates the node by adding label, shape, color, etc as defined in the settings object.
+     */
     let s = {};
     let id = data.meta.type;
     let key = id;
