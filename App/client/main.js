@@ -71,7 +71,22 @@ Router.route('/aggregation', function () {
             setInterval(function(){
                 if(changed && loaded){
                     changed = false;
-                    AggregateGraphs.drawGraphs(data_list, JSON.parse(JSON.stringify(agg)), $c);
+                    AggregateGraphs.drawGraphs(data_list, JSON.parse(JSON.stringify(agg)), $c, function (node_id) {
+                        // Get events matching the node_id.
+                        let events = [];
+                        for(let i=0; i < data_list.length; i++){
+                            for(let j=0; j < data_list[i]['nodes'].length; j++){
+                                if(data_list[i]['nodes'][j]['data']['identifier'] === node_id){
+                                    events.push(data_list[i]['nodes'][j]['data']);
+                                }
+                            }
+                        }
+                        // TODO: Add a function that plots the selected events.
+                        // * Add parameter in settings file to determine how to plot the events
+                        // * Write graph function.
+                        // * Add call to graph function.
+                        console.log(events);
+                    });
                 }
             }, 2000);
         });

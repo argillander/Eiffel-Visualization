@@ -10,7 +10,7 @@ import { setColor } from '../lib/color';
 
 class AggregateGraphs {
 
-    static drawGraphs(data, agg_positions, container) {
+    static drawGraphs(data, agg_positions, container, onClick) {
         /**
          * Generates and renders an aggregated view over the elements in the 'data' parameter using the positions from
          *  the agg_positions variable in to the provided container.
@@ -24,6 +24,8 @@ class AggregateGraphs {
          *     Objects containing the graph structure and positions to always get the same layout.
          *   container:
          *     Element to render graph in.
+         *   onClick:
+         *     Function triggered on a click on a node. Node id as te only parameter.
          *
          */
 
@@ -99,6 +101,7 @@ class AggregateGraphs {
             container: document.getElementById('cy'),
             boxSelectionEnabled: false,
             autounselectify: true,
+            autolock: true,
             style: cytoscape.stylesheet()
                 .selector('node')
                 .css({
@@ -140,6 +143,9 @@ class AggregateGraphs {
             },
 
             layout: {name: 'preset', fit: true}
+        });
+        cy.on('tap', 'node', {}, function(evt){
+            onClick(evt.cyTarget.id());
         });
     }
 }
