@@ -1,9 +1,17 @@
 # Data
 
 First run `npm install`.
-The process is then divided in to two parts, the importing of data and the generation of graphs, see each section for instructions.
+
+The rest of the process is then divided in to two parts, the importing of data and the generation of graphs, see each section for instructions.
+
+Start with importing the data and then continue with the generation of graphs.
 
 ## Import data
+[Reference data set with 5000 graphs](https://github.com/Ericsson/eiffel/blob/master/examples/reference-data-sets/default/events.zip) (192484 entries)
+
+Generated_eiffel_events.json contains 5 graphs (213 entries)
+
+### Import script
 Usage: node import_data.js [OPTIONS]... FILE DEST
 Parses nodes from a json FILE to a DESTination collection.
 
@@ -43,9 +51,9 @@ __As of now the destination collection must be example3__
 
 
 Example:
-```node generate_graphs.js example2 example3```
+```node generate_graphs.js example2```
 Or using npm run-script:
-```npm run-script generate example2 example3```
+```npm run-script generate example2```
 
 ### Settings file
 
@@ -56,9 +64,11 @@ Example:
 {
   "startEvent": "EiffelSourceChangeCreatedEvent",
   "disallowedLinks": ["PREVIOUS_VERSION"],
+  "layout": "dagre",
   "events":{
     "default": {
       "text": "{meta.type}",
+      "name": "{meta.type}",
       "shape": {"shape": "ellipse", "width": 300, "height": 300},
       "color":{
         "default":  "#d0d0d0"
@@ -66,13 +76,16 @@ Example:
     },
     "EiffelSourceChangeCreatedEvent":{
       "text": "Changes Created\n{meta.version}\n{date>meta.time}\n{data.author.name}\n{data.author.group}",
+      "name": "Changes Created",
       "shape": {"shape": "ellipse", "width": 300, "height": 300},
       "color":{
         "default":  "#d0d0d0"
-      }
+      },
+      "identifier": "{listDict>data.customData[name]}"
     },
-    "EiffelTestCaseFinishedEvent": {
-      "text": "Test Case Finished\n{meta.version}\n{date>meta.time}\n{data.outcome.verdict}",
+    "EiffelTestSuiteFinishedEvent": {
+      "text": "Test Suite Finished\n{meta.version}\n{date>meta.time}\n{data.outcome.verdict}",
+      "name": "Test Suite Finished\n{listDict>data.customData[name]}",
       "shape": {"shape": "ellipse", "width": 300, "height": 300},
       "color":{
         "default":  "#FFFF00",
@@ -82,8 +95,8 @@ Example:
           "FAILED": "#FF0000"
         }
       },
-      "identifier": "{listDict>data.customData[name]}",
-      "value": "{data.outcome.verdict}"
+      "value": "{data.outcome.verdict}",
+      "identifier": "{listDict>data.customData[name]}"
     },
   }
 }
@@ -104,6 +117,10 @@ The events object must contain a 'default' key that is used for all events that 
 The structure of the object is a "text" field in which it is possible to use values from the data object by using { and } with the data path in between.
 For example {data.author.name}.
 It also exist some special functions {date> which can be used like this {date>meta.time} and will instead of showing a timestamp show the date and time in the format YYYY-MM-DD HH:MM:SS
+
+##### Name
+The structure of the object is a "name" field in which it is possible to use values from the data object that are common to all objects with the same identifier using { and } with the data path in between.
+For example {listDict>data.customData[name]}.
 
 ###### Special Functions
 
